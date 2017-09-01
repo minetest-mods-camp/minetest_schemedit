@@ -413,7 +413,7 @@ advschem.add_form("slice", {
 
 			form = form..[[
 				field[0.3,5.5;2.5,1;ypos;Y-Position (max ]]..(meta.y_size - 1)..[[):;]]..ypos_default..[[]
-				field[2.8,5.5;2.5,1;prob;Probability (0-255):;]]..prob_default..[[]
+				field[2.8,5.5;2.5,1;prob;Probability (0-127):;]]..prob_default..[[]
 				field_close_on_enter[ypos;false]
 				field_close_on_enter[prob;false]
 			]]..done_button
