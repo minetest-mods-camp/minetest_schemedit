@@ -330,8 +330,12 @@ advschem.add_form("prob", {
 				-- Update probability
 				if fields.probability ~= "" then
 					local prob = tonumber(fields.probability)
-					if prob and prob >= 0 and prob <= 127 then
+					if prob and prob >= 0 and prob < 127 then
 						smeta:set_string("advschem_prob", fields.probability)
+					elseif prob and prob == 127 then
+						-- Clear prob metadata for default probability
+						prob_desc = ""
+						smeta:set_string("advschem_prob", nil)
 					else
 						prob_desc = "\nProbability: "..(smeta:get_string("advschem_prob") or
 								"Not Set")
