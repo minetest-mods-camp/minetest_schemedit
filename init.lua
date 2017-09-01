@@ -744,8 +744,9 @@ minetest.register_node("advschem:creator", {
 	description = "Schematic Creator",
 	tiles = {"advschem_creator_top.png", "advschem_creator_bottom.png",
 			"advschem_creator_sides.png"},
-	groups = {cracky = 3},
+	groups = { dig_immediate = 3},
 	paramtype2 = "facedir",
+	is_ground_content = false,
 
 	after_place_node = function(pos, player)
 		local name = player:get_player_name()
