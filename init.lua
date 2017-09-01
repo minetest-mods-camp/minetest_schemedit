@@ -369,7 +369,7 @@ advschem.add_form("prob", {
 					force_desc = "\n".."Force Place"
 				end
 
-				desc = desc..minetest.colorize("grey", prob_desc..force_desc)
+				desc = desc..minetest.colorize("#D79E9E", prob_desc..force_desc)
 
 				smeta:set_string("description", desc)
 			end
