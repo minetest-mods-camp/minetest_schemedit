@@ -594,27 +594,42 @@ function advschem.mark(pos)
 	local thickness = 0.2
 	local sizex, sizey, sizez = (1 + pos2.x - pos1.x) / 2, (1 + pos2.y - pos1.y) / 2, (1 + pos2.z - pos1.z) / 2
 	local m = {}
+	local low = true
+	local offset
 
 	-- XY plane markers
 	for _, z in ipairs({pos1.z - 0.5, pos2.z + 0.5}) do
-		local marker = minetest.add_entity({x = pos1.x + sizex - 0.5, y = pos1.y + sizey - 0.5, z = z}, "advschem:display")
+		if low then
+			offset = -0.01
+		else
+			offset = 0.01
+		end
+		local marker = minetest.add_entity({x = pos1.x + sizex - 0.5, y = pos1.y + sizey - 0.5, z = z + offset}, "advschem:display")
 		if marker ~= nil then
 			marker:set_properties({
-				visual_size={x=sizex * 2, y=sizey * 2},
+				visual_size={x=(sizex+0.01) * 2, y=sizey * 2},
 				collisionbox = {-sizex, -sizey, -thickness, sizex, sizey, thickness},
 			})
 			marker:get_luaentity().id = id
 			marker:get_luaentity().owner = owner
 			table.insert(m, marker)
 		end
+		low = false
 	end
 
+	low = true
 	-- YZ plane markers
 	for _, x in ipairs({pos1.x - 0.5, pos2.x + 0.5}) do
-		local marker = minetest.add_entity({x = x, y = pos1.y + sizey - 0.5, z = pos1.z + sizez - 0.5}, "advschem:display")
+		if low then
+			offset = -0.01
+		else
+			offset = 0.01
+		end
+
+		local marker = minetest.add_entity({x = x + offset, y = pos1.y + sizey - 0.5, z = pos1.z + sizez - 0.5}, "advschem:display")
 		if marker ~= nil then
 			marker:set_properties({
-				visual_size={x=sizez * 2, y=sizey * 2},
+				visual_size={x=(sizez+0.01) * 2, y=sizey * 2},
 				collisionbox = {-thickness, -sizey, -sizez, thickness, sizey, sizez},
 			})
 			marker:set_yaw(math.pi / 2)
@@ -622,6 +637,7 @@ function advschem.mark(pos)
 			marker:get_luaentity().owner = owner
 			table.insert(m, marker)
 		end
+		low = false
 	end
 
 	advschem.markers[id] = m
@@ -797,7 +813,6 @@ minetest.register_node("advschem:creator", {
 minetest.register_entity("advschem:display", {
 	initial_properties = {
 		visual = "upright_sprite",
-		visual_size = {x=1.1, y=1.1},
 		textures = {"advschem_border.png"},
 		visual_size = {x=10, y=10},
 		physical = false,
