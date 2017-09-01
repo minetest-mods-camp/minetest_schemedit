@@ -298,7 +298,7 @@ advschem.add_form("prob", {
 			]]
 		else
 			form = form .. [[
-				label[1,0.2;Insert item in slot.]
+				label[1,0.2;Insert node in slot.]
 			]]
 		end
 
@@ -668,33 +668,40 @@ minetest.register_on_shutdown(advschem.save)
 minetest.register_on_placenode(function(pos, newnode, player, oldnode, itemstack)
 	local smeta = itemstack:get_meta():to_table().fields
 
+	local prob
 	if smeta.advschem_prob and tonumber(smeta.advschem_prob) then
-		local px, py, pz = pos.x, pos.y, pos.z
-		for strpos, r in pairs(marked) do
-			local ap1, ap2 = r.pos1, r.pos2
-			if (px >= ap1.x and px <= ap2.x) and
-					(py >= ap1.y and py <= ap2.y) and
-					(pz >= ap1.z and pz <= ap2.z) then
-				local realpos = minetest.string_to_pos(strpos)
-				local node = minetest.get_node_or_nil(realpos)
+		prob = tonumber(smeta.advschem_prob)
+	elseif newnode.name == "advschem:void" then
+		prob = 0
+	else
+		return
+	end
 
-				if node and node.name == "advschem:creator" then
-					local meta = minetest.get_meta(realpos)
-					local prob_list = minetest.deserialize(meta:get_string("prob_list"))
+	local px, py, pz = pos.x, pos.y, pos.z
+	for strpos, r in pairs(marked) do
+		local ap1, ap2 = r.pos1, r.pos2
+		if (px >= ap1.x and px <= ap2.x) and
+				(py >= ap1.y and py <= ap2.y) and
+				(pz >= ap1.z and pz <= ap2.z) then
+			local realpos = minetest.string_to_pos(strpos)
+			local node = minetest.get_node_or_nil(realpos)
 
-					local force_place = false
-					if smeta.advschem_force_place == "true" then
-						force_place = true
-					end
+			if node and node.name == "advschem:creator" then
+				local meta = minetest.get_meta(realpos)
+				local prob_list = minetest.deserialize(meta:get_string("prob_list"))
 
-					local ostrpos = minetest.pos_to_string(pos)
-					prob_list[ostrpos] = {
-						pos = pos,
-						prob = tonumber(smeta.advschem_prob),
-						force_place = force_place,
-					}
-					meta:set_string("prob_list", minetest.serialize(prob_list))
+				local force_place = false
+				if newnode.name ~= "advschem:void" and smeta.advschem_force_place == "true" then
+					force_place = true
 				end
+
+				local ostrpos = minetest.pos_to_string(pos)
+				prob_list[ostrpos] = {
+					pos = pos,
+					prob = prob,
+					force_place = force_place,
+				}
+				meta:set_string("prob_list", minetest.serialize(prob_list))
 			end
 		end
 	end
@@ -802,11 +809,39 @@ minetest.register_node("advschem:creator", {
 			advschem.show_formspec(pos, player, "prob", true)
 		end
 	end,
+	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
+		if listname == "probability" then
+			local itemstring = stack:get_name()
+			if itemstring == "advschem:void" then
+				return 0
+			elseif minetest.registered_items[itemstring].type ~= "node" then
+				return 0
+			end
+		end
+		return stack:get_count()
+	end,
 	on_metadata_inventory_take = function(pos, listname, index, stack, player)
 		if listname == "probability" then
 			advschem.show_formspec(pos, player, "prob", true)
 		end
 	end,
+})
+
+minetest.register_node("advschem:void", {
+	description = "Schematic Void",
+	tiles = { "advschem_void.png" },
+	drawtype = "nodebox",
+	is_ground_content = false,
+	paramtype = "light",
+	walkable = false,
+	sunlight_propagates = true,
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{ -4/16, -4/16, -4/16, 4/16, 4/16, 4/16 },
+		},
+	},
+	groups = { dig_immediate = 3},
 })
 
 -- [entity] Display
