@@ -8,6 +8,9 @@ if not DIR_DELIM then
 end
 local export_path_full = table.concat({minetest.get_worldpath(), "schems"}, DIR_DELIM)
 
+local text_color = "#D79E9E"
+local text_color_number = 0xD79E9E
+
 advschem.markers = {}
 
 -- [local function] Renumber table
@@ -199,7 +202,7 @@ local function set_item_metadata(itemstack, prob, force_place)
 		force_desc = "\n".."Force placement"
 	end
 
-	desc = desc..minetest.colorize("#D79E9E", prob_desc..force_desc)
+	desc = desc..minetest.colorize(text_color, prob_desc..force_desc)
 
 	smeta:set_string("description", desc)
 
@@ -671,6 +674,29 @@ function advschem.unmark(pos)
 	end
 end
 
+
+-- Show node probability for player in HUD
+function advschem.mark_node_prob(player, pos, prob, force_place)
+	local wpstring = ""
+	if prob then
+		wpstring = wpstring .. prob
+	end
+	if wpstring == "" then
+		wpstring = wpstring .. " "
+	end
+	if force_place == true then
+		wpstring = wpstring .. "[F]"
+	end
+	if wpstring ~= "" then
+		return player:hud_add({
+			hud_elem_type = "waypoint",
+			name = wpstring,
+			number = text_color_number,
+			world_pos = pointed_thing.under,
+		})
+	end
+end
+
 ---
 --- Registrations
 ---
@@ -684,6 +710,12 @@ minetest.register_privilege("schematic_override", {
 -- [node] Schematic creator
 minetest.register_node("advschem:creator", {
 	description = "Schematic Creator",
+	_doc_items_longdesc = "The schematic creator is used to save a region of the world into a schematic file (.mts).",
+	_doc_items_usagehelp = "To get started, place the block facing directly in front of any bottom left corner of the structure you want to save. This block can only be accessed by the placer or by anyone with the “schematic_override” privilege.".."\n"..
+"To save a region, rightclick the block, enter the size, a schematic name and hit “Export schematic”. The file will always be saved in the world directory. You can use this name in the /placeschem command.".."\n"..
+"The other features of the schematic creator are optional and are used to allow to add randomness and fine-tuning.".."\n"..
+"Y slices are used to remove entire slices based on chance. For each slice of the schematic region along the Y axis, you can specify that it occours only with a certain chance. In the Y slice tab, you have to specify the Y slice height (0 = bottom) and a probability from 0 to 127 (127 is for 100%). By default, all Y slices occour always.".."\n"..
+"With a schematic node probability tool, you can set a probability for each node and enable them to overwrite all nodes when placed as schematic. This tool must be used prior to the file export.",
 	tiles = {"advschem_creator_top.png", "advschem_creator_bottom.png",
 			"advschem_creator_sides.png"},
 	groups = { dig_immediate = 3},
@@ -745,6 +777,13 @@ minetest.register_node("advschem:creator", {
 
 minetest.register_tool("advschem:probtool", {
 	description = "Schematic Node Probability Tool",
+	_doc_items_longdesc =
+"This tool can be used together with a schematic creator to finetune the way how nodes from a schematic are placed.".."\n"..
+"It allows you to do two things:".."\n"..
+"1) Set a chance for a particular node not to be placed in schematic".."\n"..
+"2) Enable a node to replace blocks other than air and ignored when placed in a schematic",
+	_doc_items_usagehelp = "Leftclick to select a probability (0-127; 127 is for 100%) and to enable or disable force placement. Now rightclick any node with this tool to apply these settings to the node. This information is preserved in the node until it is destroyed or the tool is used again. Now you can use a schematic creator to save a region as usual, the nodes will now be saved with the special node settings applied.".."\n"..
+"Note that this tool only has an effect on the nodes with regards to schematics. The node behaviour itself is not changed at all.",
 	wield_image = "advschem_probtool.png",
 	inventory_image = "advschem_probtool.png",
 	on_use = function(itemstack, placer, pointed_thing)
@@ -776,12 +815,15 @@ minetest.register_tool("advschem:probtool", {
 		else
 			nmeta:set_string("advschem_force_place", nil)
 		end
+
 		return itemstack
 	end,
 })
 
 minetest.register_node("advschem:void", {
 	description = "Schematic Void",
+	_doc_items_longdesc = "This is an utility block used in the creation of schematic files. It should be used together with a schematic creator. When saving a schematic, all nodes with a schematic void will be left unchanged when the schematic is placed again. Technically, this is equivalent to a block with the node probability set to 0.",
+	_doc_items_usagehelp = "Just place the schematic void like any other block and use the schematic creator to save a portion of the world.",
 	tiles = { "advschem_void.png" },
 	drawtype = "nodebox",
 	is_ground_content = false,
