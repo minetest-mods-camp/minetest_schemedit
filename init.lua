@@ -491,8 +491,8 @@ advschem.add_form("slice", {
 				]]
 			else
 				form = form..[[
-					button[0,4;2,1;remove;- Remove slice]
-					button[2,4;2,1;edit;+/- Edit slice]
+					button[2,4;2,1;remove;- Remove slice]
+					button[4,4;2,1;edit;+/- Edit slice]
 				]]
 			end
 		end
