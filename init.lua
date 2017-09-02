@@ -716,7 +716,7 @@ minetest.register_node("advschem:creator", {
 "With a schematic node probability tool, you can set a probability for each node and enable them to overwrite all nodes when placed as schematic. This tool must be used prior to the file export.",
 	tiles = {"advschem_creator_top.png", "advschem_creator_bottom.png",
 			"advschem_creator_sides.png"},
-	groups = { dig_immediate = 3},
+	groups = { dig_immediate = 2},
 	paramtype2 = "facedir",
 	is_ground_content = false,
 
