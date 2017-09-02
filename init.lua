@@ -145,8 +145,8 @@ advschem.scan_metadata = function(pos1, pos2)
 			end
 		end
 
-		local ostrpos = minetest.pos_to_string(scanpos)
-		prob_list[ostrpos] = {
+		local hashpos = minetest.hash_node_position(scanpos)
+		prob_list[hashpos] = {
 			pos = scanpos,
 			prob = prob,
 			force_place = force_place,
@@ -220,9 +220,10 @@ advschem.add_form("main", {
 	get = function(self, pos, name)
 		local meta = minetest.get_meta(pos):to_table().fields
 		local strpos = minetest.pos_to_string(pos)
+		local hashpos = minetest.hash_node_position(pos)
 
 		local border_button
-		if meta.schem_border == "true" and advschem.markers[strpos] then
+		if meta.schem_border == "true" and advschem.markers[hashpos] then
 			border_button = "button[3.5,7.5;3,1;border;Hide border]"
 		else
 			border_button = "button[3.5,7.5;3,1;border;Show border]"
@@ -256,11 +257,11 @@ advschem.add_form("main", {
 	handle = function(self, pos, name, fields)
 		local realmeta = minetest.get_meta(pos)
 		local meta = realmeta:to_table().fields
-		local strpos = minetest.pos_to_string(pos)
+		local hashpos = minetest.hash_node_position(pos)
 
 		-- Toggle border
 		if fields.border then
-			if meta.schem_border == "true" and advschem.markers[strpos] then
+			if meta.schem_border == "true" and advschem.markers[hashpos] then
 				advschem.unmark(pos)
 				meta.schem_border = "false"
 			else
@@ -302,16 +303,16 @@ advschem.add_form("main", {
 
 			local plist = advschem.scan_metadata(pos1, pos2)
 			local probability_list = {}
-			for _, i in pairs(plist) do
+			for hash, i in pairs(plist) do
 				local prob = i.prob
 				if i.force_place == true then
 					prob = prob + 128
 				end
 
-				probability_list[#probability_list + 1] = {
-					pos = minetest.string_to_pos(_),
+				table.insert(probability_list, {
+					pos = minetest.get_position_from_hash(hash),
 					prob = prob,
-				}
+				})
 			end
 
 			local slist = minetest.deserialize(meta.slices)
@@ -596,7 +597,7 @@ end
 function advschem.mark(pos)
 	advschem.unmark(pos)
 
-	local id = minetest.pos_to_string(pos)
+	local id = minetest.hash_node_position(pos)
 	local owner = minetest.get_meta(pos):get_string("owner")
 	local pos1, pos2 = advschem.size(pos)
 	pos1, pos2 = advschem.sort_pos(pos1, pos2)
@@ -654,7 +655,7 @@ end
 
 -- [function] Unmark region
 function advschem.unmark(pos)
-	local id = minetest.pos_to_string(pos)
+	local id = minetest.hash_node_position(pos)
 	if advschem.markers[id] then
 		local retval
 		for _, entity in ipairs(advschem.markers[id]) do
@@ -823,6 +824,7 @@ minetest.register_tool("advschem:probtool", {
 "Note that this tool only has an effect on the nodes with regards to schematics. The node behaviour itself is not changed at all.",
 	wield_image = "advschem_probtool.png",
 	inventory_image = "advschem_probtool.png",
+	liquids_pointable = true,
 	on_use = function(itemstack, user, pointed_thing)
 		-- Open dialog to change the probability to apply to nodes.
 		advschem.show_formspec(user:getpos(), user, "probtool", true)
