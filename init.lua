@@ -269,7 +269,6 @@ advschem.add_form("main", {
 			end
 		end
 
-		local update_positions = false
 		-- Save size vector values
 		if (fields.save or fields.key_enter_field == "x" or
 				fields.key_enter_field == "y" or fields.key_enter_field == "z")
@@ -286,9 +285,6 @@ advschem.add_form("main", {
 			if z then
 				meta.z_size = math.max(z, 1)
 			end
-
-			-- Set positions to be updated
-			update_positions = true
 		end
 
 		-- Save schematic name
@@ -300,6 +296,7 @@ advschem.add_form("main", {
 		-- Export schematic
 		if fields.export and meta.schem_name and meta.schem_name ~= "" then
 			local pos1, pos2 = advschem.size(pos)
+			pos1, pos2 = advschem.sort_pos(pos1, pos2)
 			local path = export_path_full .. DIR_DELIM
 			minetest.mkdir(path)
 
@@ -350,11 +347,6 @@ advschem.add_form("main", {
 		-- Update formspec
 		if not fields.quit then
 			advschem.show_formspec(pos, minetest.get_player_by_name(name), "main")
-		end
-
-		if update_positions then
-			local pos1, pos2 = advschem.size(pos)
-			pos1, pos2 = advschem.sort_pos(pos1, pos2)
 		end
 	end,
 })
@@ -787,11 +779,6 @@ minetest.register_node("advschem:creator", {
 		meta:set_int("x_size", 1)
 		meta:set_int("y_size", 1)
 		meta:set_int("z_size", 1)
-
-		local inv = meta:get_inventory()
-		inv:set_size("probability", 1)
-
-		local pos1, pos2 = advschem.size(pos)
 
 		-- Don't take item from itemstack
 		return true
