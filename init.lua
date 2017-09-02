@@ -375,41 +375,41 @@ advschem.add_form("slice", {
 		slices = slices:sub(1, -2) -- Remove final comma
 
 		local form = [[
-			size[7,6]
-			table[0,0;6.8,4;slices;]]..slices..[[;]]..selected..[[]
+			size[7,8]
+			table[0,0;6.8,6;slices;]]..slices..[[;]]..selected..[[]
 		]]
 
 		if self.panel_add or self.panel_edit then
 			local ypos_default, prob_default = "", ""
-			local done_button = "button[5,5.18;2,1;done_add;Done]"
+			local done_button = "button[5,7.18;2,1;done_add;Done]"
 			if self.panel_edit then
-				done_button = "button[5,5.18;2,1;done_edit;Done]"
+				done_button = "button[5,7.18;2,1;done_edit;Done]"
 				ypos_default = slice_list[self.selected].ypos
 				prob_default = slice_list[self.selected].prob
 			end
 
 			form = form..[[
-				field[0.3,5.5;2.5,1;ypos;Y position (max. ]]..(meta.y_size - 1)..[[):;]]..ypos_default..[[]
-				field[2.8,5.5;2.5,1;prob;Probability (0-127):;]]..prob_default..[[]
+				field[0.3,7.5;2.5,1;ypos;Y position (max. ]]..(meta.y_size - 1)..[[):;]]..ypos_default..[[]
+				field[2.8,7.5;2.5,1;prob;Probability (0-127):;]]..prob_default..[[]
 				field_close_on_enter[ypos;false]
 				field_close_on_enter[prob;false]
 			]]..done_button
 		end
 
 		if not self.panel_edit then
-			form = form.."button[0,4;2,1;add;+ Add slice]"
+			form = form.."button[0,6;2,1;add;+ Add slice]"
 		end
 
 		if slices ~= "" and self.selected and not self.panel_add then
 			if not self.panel_edit then
 				form = form..[[
-					button[2,4;2,1;remove;- Remove slice]
-					button[4,4;2,1;edit;+/- Edit slice]
+					button[2,6;2,1;remove;- Remove slice]
+					button[4,6;2,1;edit;+/- Edit slice]
 				]]
 			else
 				form = form..[[
-					button[2,4;2,1;remove;- Remove slice]
-					button[4,4;2,1;edit;+/- Edit slice]
+					button[2,6;2,1;remove;- Remove slice]
+					button[4,6;2,1;edit;+/- Edit slice]
 				]]
 			end
 		end
