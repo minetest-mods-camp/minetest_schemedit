@@ -223,7 +223,7 @@ advschem.add_form("main", {
 			label[0.5,-0.1;Position: ]]..strpos..[[]
 			label[3,-0.1;Owner: ]]..name..[[]
 
-			field[0.8,1;5,1;name;Schematic name:;]]..(meta.schem_name or "")..[[]
+			field[0.8,1;5,1;name;Schematic name:;]]..minetest.formspec_escape(meta.schem_name or "")..[[]
 			button[5.3,0.69;1.2,1;save_name;Save]
 			tooltip[save_name;Save schematic name]
 			field_close_on_enter[name;false]
