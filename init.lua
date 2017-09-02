@@ -694,14 +694,24 @@ function advschem.display_node_prob(player, pos, prob, force_place)
 	end
 end
 
--- Display the node probabilities and force_place status of the nodes near the player.
-function advschem.display_node_probs_around_player(player)
+-- Display the node probabilities and force_place status of the nodes in a region.
+-- By default, this is done for nodes near the player (distance: 5).
+-- But the boundaries can optionally be set explicitly with pos1 and pos2.
+function advschem.display_node_probs_region(player, pos1, pos2)
 	local playername = player:get_player_name()
 	local pos = vector.round(player:getpos())
+
 	local dist = 5
-	for x=pos.x-dist, pos.x+dist do
-		for y=pos.y-dist, pos.y+dist do
-			for z=pos.z-dist, pos.z+dist do
+	-- Default: 5 nodes away from player in any direction
+	if not pos1 then
+		pos1 = vector.subtract(pos, dist)
+	end
+	if not pos2 then
+		pos2 = vector.add(pos, dist)
+	end
+	for x=pos1.x, pos2.x do
+		for y=pos1.y, pos2.y do
+			for z=pos1.z, pos2.z do
 				local checkpos = {x=x, y=y, z=z}
 				local nodehash = minetest.hash_node_position(checkpos)
 
@@ -863,8 +873,24 @@ minetest.register_tool("advschem:probtool", {
 
 		-- Use + sneak
 		else
-			-- Enable node probablity display
-			advschem.display_node_probs_around_player(user)
+			-- Display the probability and force_place values for nodes.
+
+			-- If a schematic creator was punched, only enable display for all nodes
+			-- within the creator's region.
+			local use_creator_region = false
+			if pointed_thing and pointed_thing.type == "node" and pointed_thing.under then
+				punchpos = pointed_thing.under
+				local node = minetest.get_node(punchpos)
+				if node.name == "advschem:creator" then
+					local pos1, pos2 = advschem.size(punchpos)
+					pos1, pos2 = advschem.sort_pos(pos1, pos2)
+					advschem.display_node_probs_region(user, pos1, pos2)
+					return
+				end
+			end
+
+			-- Otherwise, just display the region close to the player
+			advschem.display_node_probs_region(user)
 		end
 	end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
@@ -905,7 +931,7 @@ minetest.register_tool("advschem:probtool", {
 		end
 
 		-- Enable node probablity display
-		advschem.display_node_probs_around_player(placer)
+		advschem.display_node_probs_region(placer)
 
 		return itemstack
 	end,
