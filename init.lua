@@ -355,92 +355,6 @@ advschem.add_form("main", {
 	end,
 })
 
-advschem.add_form("prob", {
-	tab = true,
-	caption = "Node Probabilities",
-	get = function(self, pos, name)
-		local meta = minetest.get_meta(pos)
-		local inventory = meta:get_inventory()
-		local stack = inventory:get_stack("probability", 1)
-		local stringpos = pos.x..","..pos.y..","..pos.z
-
-		local form = [[
-			size[8,6]
-			list[nodemeta:]]..stringpos..[[;probability;0,0;1,1;]
-			label[0,1;Probability is a number between 0 and 127.]
-			list[current_player;main;0,1.5;8,4;]
-			listring[nodemeta:]]..stringpos..[[;probability]
-			listring[current_player;main]
-		]]
-
-		if stack:get_name() ~= "" then
-			local smeta = stack:get_meta():to_table().fields
-
-			form = form .. [[
-				field[1.3,0.4;2,1;probability;Probability:;]]..
-						(smeta.advschem_prob or "127").."]" ..
-			[[
-				field_close_on_enter[probability;false]
-				checkbox[3.1,0.1;force_place;Force placement;]]..(smeta.advschem_force_place or "false")..[[]
-				button[5,0.1;1.5,1;rst;Reset]
-				button[6.5,0.1;1.5,1;save;Save]
-			]]
-		else
-			form = form .. [[
-				label[1,0.2;Insert schematc node probability tool into slot.]
-			]]
-		end
-
-		return form
-	end,
-	handle = function(self, pos, name, fields)
-		local meta = minetest.get_meta(pos)
-		local inventory = meta:get_inventory()
-		local stack = inventory:get_stack("probability", 1)
-		local smeta = stack:get_meta()
-
-		if stack:get_name() ~= "" then
-			if fields.rst then
-				smeta:set_string("advschem_prob", nil)
-				smeta:set_string("advschem_force_place", nil)
-
-				-- Reset description
-				local original_desc = smeta:get_string("original_desc")
-				if not original_desc or original_desc == "" then
-					original_desc = minetest.registered_items[stack:get_name()].description
-				end
-
-				smeta:set_string("description", original_desc)
-			elseif fields.force_place or fields.save or
-					fields.key_enter_field == "probability" then
-
-				local prob = tonumber(fields.probability)
-				local force_place
-
-				if fields.force_place ~= nil then
-					if fields.force_place == "true" then
-						force_place = true
-					elseif fields.force_place == "false" then
-						force_place = false
-					end
-				end
-
-				set_item_metadata(stack, prob, force_place)
-
-				advschem.show_formspec(pos, minetest.get_player_by_name(name), "prob")
-			end
-
-			-- Update itemstack
-			inventory:set_stack("probability", 1, stack)
-
-			-- Refresh formspec on reset or force placement change
-			if fields.rst or fields.force_place then
-				advschem.show_formspec(pos, minetest.get_player_by_name(name), "prob")
-			end
-		end
-	end,
-})
-
 advschem.add_form("slice", {
 	caption = "Y Slices",
 	tab = true,
@@ -826,27 +740,6 @@ minetest.register_node("advschem:creator", {
 	end,
 	after_destruct = function(pos)
 		advschem.unmark(pos)
-	end,
-
-	-- Update formspec when items are added to or taken from the probability inventory
-	on_metadata_inventory_put = function(pos, listname, index, stack, player)
-		if listname == "probability" then
-			advschem.show_formspec(pos, player, "prob", true)
-		end
-	end,
-	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-		if listname == "probability" then
-			local itemstring = stack:get_name()
-			if itemstring ~= "advschem:probtool" then
-				return 0
-			end
-		end
-		return stack:get_count()
-	end,
-	on_metadata_inventory_take = function(pos, listname, index, stack, player)
-		if listname == "probability" then
-			advschem.show_formspec(pos, player, "prob", true)
-		end
 	end,
 })
 
