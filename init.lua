@@ -2,7 +2,12 @@
 
 advschem = {}
 
-local path       = minetest.get_worldpath().."/advschem.mt"
+-- Directory delimeter fallback (normally comes from builtin)
+if not DIR_DELIM then
+	DIR_DELIM = "/"
+end
+local export_path_full = table.concat({minetest.get_worldpath(), "schems"}, DIR_DELIM)
+
 advschem.markers = {}
 
 -- [local function] Renumber table
@@ -229,9 +234,8 @@ advschem.add_form("main", {
 			field_close_on_enter[name;false]
 
 			button[0.5,1.5;6,1;export;Export schematic]
-			label[0.5,2.2;Schematic will be exported as a .mts file and stored in]
-			label[0.5,2.45;<minetest dir>/worlds/<worldname>/schems/<name>.mts]
-
+			textarea[0.8,2.5;6.2,5;;The schematic will be exported as a .mts file and stored in]]..
+			"\n" .. export_path_full .. DIR_DELIM .. [[<name>.mts.;]
 			field[0.8,7;2,1;x;X size:;]]..meta.x_size..[[]
 			field[2.8,7;2,1;y;Y size:;]]..meta.y_size..[[]
 			field[4.8,7;2,1;z;Z size:;]]..meta.z_size..[[]
@@ -290,7 +294,7 @@ advschem.add_form("main", {
 		-- Export schematic
 		if fields.export and meta.schem_name and meta.schem_name ~= "" then
 			local pos1, pos2 = advschem.size(pos)
-			local path = minetest.get_worldpath().."/schems/"
+			local path = export_path_full .. DIR_DELIM
 			minetest.mkdir(path)
 
 			local plist = advschem.scan_metadata(pos1, pos2)
@@ -923,9 +927,9 @@ minetest.register_entity("advschem:display", {
 -- [chatcommand] Place schematic
 minetest.register_chatcommand("placeschem", {
 	description = "Place schematic at the position specified or the current "..
-			"player position (loaded from "..minetest.get_worldpath().."/schems/)",
+			"player position (loaded from "..export_path_full..".",
 	privs = {debug = true},
-	params = "<schematic name>.mts [<x> <y> <z>]",
+	params = "<schematic name>[.mts] [<x> <y> <z>]",
 	func = function(name, param)
 		local schem, p = string.match(param, "^([^ ]+) *(.*)$")
 		local pos = minetest.string_to_pos(p)
@@ -938,7 +942,15 @@ minetest.register_chatcommand("placeschem", {
 			pos = minetest.get_player_by_name(name):get_pos()
 		end
 
-		local success = minetest.place_schematic(pos, minetest.get_worldpath().."/schems/"..schem..".mts", "random", nil, false)
+		-- Automatiically add file name suffix if omitted
+		local schem_full
+		if string.sub(schem, string.len(schem)-3, string.len(schem)) == ".mts" then
+			schem_full = schem
+		else
+			schem_full = schem .. ".mts"
+		end
+
+		local success = minetest.place_schematic(pos, export_path_full .. DIR_DELIM .. schem_full, "random", nil, false)
 
 		if success == nil then
 			return false, "Schematic file could not be loaded!"
