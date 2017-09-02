@@ -625,7 +625,6 @@ function advschem.mark(pos)
 		if marker ~= nil then
 			marker:set_properties({
 				visual_size={x=(sizex+0.01) * 2, y=sizey * 2},
-				collisionbox = {-sizex, -sizey, -thickness, sizex, sizey, thickness},
 			})
 			marker:get_luaentity().id = id
 			marker:get_luaentity().owner = owner
@@ -647,7 +646,6 @@ function advschem.mark(pos)
 		if marker ~= nil then
 			marker:set_properties({
 				visual_size={x=(sizez+0.01) * 2, y=sizey * 2},
-				collisionbox = {-thickness, -sizey, -sizez, thickness, sizey, sizez},
 			})
 			marker:set_yaw(math.pi / 2)
 			marker:get_luaentity().id = id
@@ -839,28 +837,19 @@ minetest.register_node("advschem:void", {
 	groups = { dig_immediate = 3},
 })
 
--- [entity] Display
+-- [entity] Visible schematic border
 minetest.register_entity("advschem:display", {
-	initial_properties = {
-		visual = "upright_sprite",
-		textures = {"advschem_border.png"},
-		visual_size = {x=10, y=10},
-		physical = false,
-	},
+	visual = "upright_sprite",
+	textures = {"advschem_border.png"},
+	visual_size = {x=10, y=10},
+	collisionbox = {0,0,0,0,0,0},
+	physical = false,
+
 	on_step = function(self, dtime)
 		if not self.id then
 			self.object:remove()
 		elseif not advschem.markers[self.id] then
 			self.object:remove()
-		end
-	end,
-	on_punch = function(self, hitter)
-		local pos = minetest.string_to_pos(self.id)
-		local meta = minetest.get_meta(pos)
-		if meta:get_string("owner") == hitter:get_player_name() or
-				minetest.check_player_privs(hitter, "schematic_override") == true then
-			advschem.unmark(pos)
-			meta:set_string("schem_border", "false")
 		end
 	end,
 	on_activate = function(self)
