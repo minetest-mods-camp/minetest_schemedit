@@ -230,7 +230,7 @@ advschem.add_form("main", {
 		end
 
 		-- TODO: Show information regarding volume, pos1, pos2, etc... in formspec
-		return [[
+		local form = [[
 			size[7,8]
 			label[0.5,-0.1;Position: ]]..strpos..[[]
 			label[3,-0.1;Owner: ]]..name..[[]
@@ -253,11 +253,21 @@ advschem.add_form("main", {
 			button[0.5,7.5;3,1;save;Save size]
 		]]..
 		border_button
+		if minetest.get_modpath("doc") then
+			form = form .. "image_button[6.4,-0.2;0.8,0.8;doc_button_icon_lores.png;doc;]" ..
+			"tooltip[doc;Help]"
+		end
+		return form
 	end,
 	handle = function(self, pos, name, fields)
 		local realmeta = minetest.get_meta(pos)
 		local meta = realmeta:to_table().fields
 		local hashpos = minetest.hash_node_position(pos)
+
+		if fields.doc then
+			doc.show_entry(name, "nodes", "advschem:creator", true)
+			return
+		end
 
 		-- Toggle border
 		if fields.border then
