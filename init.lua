@@ -718,6 +718,7 @@ function advschem.display_node_probs_around_player(player)
 				local hud_id = advschem.display_node_prob(player, checkpos, prob, force_place)
 				if hud_id then
 					displayed_waypoints[playername][nodehash] = hud_id
+					displayed_waypoints[playername].display_active = true
 				end
 			end
 		end
@@ -726,18 +727,46 @@ end
 
 -- Remove all active displayed node statuses.
 function advschem.clear_displayed_node_probs(player)
-	for nodehash, hud_id in pairs(displayed_waypoints[player:get_player_name()]) do
+	local playername = player:get_player_name()
+	for nodehash, hud_id in pairs(displayed_waypoints[playername]) do
 		player:hud_remove(hud_id)
-		displayed_waypoints[player:get_player_name()][nodehash] = nil
+		displayed_waypoints[playername][nodehash] = nil
+		displayed_waypoints[playername].display_active = false
 	end
 end
 
 minetest.register_on_joinplayer(function(player)
-	displayed_waypoints[player:get_player_name()] = {}
+	displayed_waypoints[player:get_player_name()] = {
+		display_active = false	-- If true, there *might* be at least one active node prob HUD display
+					-- If false, no node probabilities are displayed for sure.
+	}
 end)
 
 minetest.register_on_leaveplayer(function(player)
 	displayed_waypoints[player:get_player_name()] = nil
+end)
+
+-- Regularily clear the displayed node probabilities and force_place
+-- for all players who do not wield the probtool.
+-- This makes sure the screen is not spammed with information when it
+-- isn't needed.
+local cleartimer = 0
+minetest.register_globalstep(function(dtime)
+	cleartimer = cleartimer + dtime
+	if cleartimer > 2 then
+		local players = minetest.get_connected_players()
+		for p = 1, #players do
+			local player = players[p]
+			local pname = player:get_player_name()
+			if displayed_waypoints[pname].display_active then
+				local item = player:get_wielded_item()
+				if item:get_name() ~= "advschem:probtool" then
+					advschem.clear_displayed_node_probs(player)
+				end
+			end
+		end
+		cleartimer = 0
+	end
 end)
 
 ---
@@ -826,13 +855,22 @@ minetest.register_tool("advschem:probtool", {
 	inventory_image = "advschem_probtool.png",
 	liquids_pointable = true,
 	on_use = function(itemstack, user, pointed_thing)
-		-- Open dialog to change the probability to apply to nodes.
-		advschem.show_formspec(user:getpos(), user, "probtool", true)
+		local ctrl = user:get_player_control()
+		-- Simple use
+		if not ctrl.sneak then
+			-- Open dialog to change the probability to apply to nodes
+			advschem.show_formspec(user:getpos(), user, "probtool", true)
+
+		-- Use + sneak
+		else
+			-- Enable node probablity display
+			advschem.display_node_probs_around_player(user)
+		end
 	end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
 		advschem.clear_displayed_node_probs(user)
 	end,
-	-- Set note probability and force_place
+	-- Set note probability and force_place and enable node probability display
 	on_place = function(itemstack, placer, pointed_thing)
 		-- Use pointed node's on_rightclick function first, if present
 		local node = minetest.get_node(pointed_thing.under)
