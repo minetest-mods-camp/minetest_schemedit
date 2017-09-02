@@ -1,6 +1,6 @@
 -- advschem/init.lua
 
-advschem = {}
+local advschem = {}
 
 -- Directory delimeter fallback (normally comes from builtin)
 if not DIR_DELIM then
@@ -792,7 +792,7 @@ minetest.register_tool("advschem:probtool", {
 		-- This sets the node probability of pointed node to the
 		-- currently used probability stored in the tool.
 
-		pos = pointed_thing.under
+		local pos = pointed_thing.under
 		local node = minetest.get_node(pos)
 		-- Schematic void are ignored, they always have probability 0
 		if node.name == "advschem:void" then
