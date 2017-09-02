@@ -30,6 +30,7 @@ local contexts = {}
 local form_data = {}
 local tabs = {}
 local forms = {}
+local displayed_waypoints = {}
 
 -- [function] Add form
 function advschem.add_form(name, def)
@@ -672,28 +673,79 @@ function advschem.unmark(pos)
 	end
 end
 
+---
+--- Mark node probability values near player
+---
 
--- Show node probability for player in HUD
-function advschem.mark_node_prob(player, pos, prob, force_place)
-	local wpstring = ""
-	if prob then
-		wpstring = wpstring .. prob
+-- Show probability and force_place status of a particular position for player in HUD.
+-- Probability is shown as a number followed by “[F]” if the node is force-placed.
+-- The distance to the node is also displayed below that. This can't be avoided and is
+-- and artifact of the waypoint HUD element. TODO: Hide displayed distance.
+function advschem.display_node_prob(player, pos, prob, force_place)
+	local wpstring
+	if prob and force_place == true then
+		wpstring = string.format("%d [F]", prob)
+	elseif prob then
+		wpstring = prob
+	elseif force_place == true then
+		wpstring = "[F]"
 	end
-	if wpstring == "" then
-		wpstring = wpstring .. " "
-	end
-	if force_place == true then
-		wpstring = wpstring .. "[F]"
-	end
-	if wpstring ~= "" then
+	if wpstring then
 		return player:hud_add({
 			hud_elem_type = "waypoint",
 			name = wpstring,
+			text = "m", -- For the distance artifact
 			number = text_color_number,
-			world_pos = pointed_thing.under,
+			world_pos = pos,
 		})
 	end
 end
+
+-- Display the node probabilities and force_place status of the nodes near the player.
+function advschem.display_node_probs_around_player(player)
+	local playername = player:get_player_name()
+	local pos = vector.round(player:getpos())
+	local dist = 5
+	for x=pos.x-dist, pos.x+dist do
+		for y=pos.y-dist, pos.y+dist do
+			for z=pos.z-dist, pos.z+dist do
+				local checkpos = {x=x, y=y, z=z}
+				local nodehash = minetest.hash_node_position(checkpos)
+
+				-- If node is already displayed, remove it so it can re replaced later
+				if displayed_waypoints[playername][nodehash] then
+					player:hud_remove(displayed_waypoints[playername][nodehash])
+					displayed_waypoints[playername][nodehash] = nil
+				end
+
+				local prob, force_place
+				local meta = minetest.get_meta(checkpos)
+				prob = tonumber(meta:get_string("advschem_prob"))
+				force_place = meta:get_string("advschem_force_place") == "true"
+				local hud_id = advschem.display_node_prob(player, checkpos, prob, force_place)
+				if hud_id then
+					displayed_waypoints[playername][nodehash] = hud_id
+				end
+			end
+		end
+	end
+end
+
+-- Remove all active displayed node statuses.
+function advschem.clear_displayed_node_probs(player)
+	for nodehash, hud_id in pairs(displayed_waypoints[player:get_player_name()]) do
+		player:hud_remove(hud_id)
+		displayed_waypoints[player:get_player_name()][nodehash] = nil
+	end
+end
+
+minetest.register_on_joinplayer(function(player)
+	displayed_waypoints[player:get_player_name()] = {}
+end)
+
+minetest.register_on_leaveplayer(function(player)
+	displayed_waypoints[player:get_player_name()] = nil
+end)
 
 ---
 --- Registrations
@@ -784,11 +836,15 @@ minetest.register_tool("advschem:probtool", {
 "Note that this tool only has an effect on the nodes with regards to schematics. The node behaviour itself is not changed at all.",
 	wield_image = "advschem_probtool.png",
 	inventory_image = "advschem_probtool.png",
-	on_use = function(itemstack, placer, pointed_thing)
+	on_use = function(itemstack, user, pointed_thing)
 		-- Open dialog to change the probability to apply to nodes.
-		advschem.show_formspec(placer:getpos(), placer, "probtool", true)
+		advschem.show_formspec(user:getpos(), user, "probtool", true)
+	end,
+	on_secondary_use = function(itemstack, user, pointed_thing)
+		advschem.clear_displayed_node_probs(user)
 	end,
 	on_place = function(itemstack, placer, pointed_thing)
+
 		-- This sets the node probability of pointed node to the
 		-- currently used probability stored in the tool.
 
@@ -813,6 +869,9 @@ minetest.register_tool("advschem:probtool", {
 		else
 			nmeta:set_string("advschem_force_place", nil)
 		end
+
+		-- Enable node probablity display
+		advschem.display_node_probs_around_player(placer)
 
 		return itemstack
 	end,
