@@ -110,18 +110,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	end
 end)
 
--- [event] Transfer probabilities and force place on item placement into node
-minetest.register_on_placenode(function(pos, newnode, player, oldnode, itemstack)
-	local smeta = itemstack:get_meta():to_table().fields
-	local nmeta = minetest.get_meta(pos)
-	if smeta.advschem_prob then
-		nmeta:set_string("advschem_prob", smeta_advschem_prob)
-	end
-	if smeta.advschem_force_place then
-		nmeta:set_string("advschem_force_place", smeta_advschem_force_place)
-	end
-end)
-
 -- Helper function. Scans probabilities of all nodes in the given area and returns a prob_list
 advschem.scan_metadata = function(pos1, pos2)
 	local prob_list = {}
@@ -854,10 +842,19 @@ minetest.register_tool("advschem:probtool", {
 	wield_image = "advschem_probtool.png",
 	inventory_image = "advschem_probtool.png",
 	on_use = function(itemstack, placer, pointed_thing)
+		-- Open dialog to change the probability to apply to nodes.
 		advschem.show_formspec(placer:getpos(), placer, "probtool", true)
 	end,
 	on_place = function(itemstack, placer, pointed_thing)
+		-- This sets the node probability of pointed node to the
+		-- currently used probability stored in the tool.
+
 		pos = pointed_thing.under
+		local node = minetest.get_node(pos)
+		-- Schematic void are ignored, they always have probability 0
+		if node.name == "advschem:void" then
+			return itemstack
+		end
 		local nmeta = minetest.get_meta(pos)
 		local imeta = itemstack:get_meta()
 		local prob = tonumber(imeta:get_string("advschem_prob"))
