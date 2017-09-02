@@ -173,9 +173,11 @@ local function set_item_metadata(itemstack, prob, force_place)
 				"Not Set")
 	end
 
-	-- Update force place if value is not nil
-	if force_place then
+	-- Update force place
+	if force_place == true then
 		smeta:set_string("advschem_force_place", "true")
+	elseif force_place == false then
+		smeta:set_string("advschem_force_place", nil)
 	end
 
 	-- Update description
@@ -194,7 +196,7 @@ local function set_item_metadata(itemstack, prob, force_place)
 
 	local force_desc = ""
 	if smeta:get_string("advschem_force_place") == "true" then
-		force_desc = "\n".."Force Place"
+		force_desc = "\n".."Force placement"
 	end
 
 	desc = desc..minetest.colorize("#D79E9E", prob_desc..force_desc)
@@ -379,7 +381,7 @@ advschem.add_form("prob", {
 						(smeta.advschem_prob or "127").."]" ..
 			[[
 				field_close_on_enter[probability;false]
-				checkbox[3.1,0.1;force_place;Force Place;]]..(smeta.advschem_force_place or "false")..[[]
+				checkbox[3.1,0.1;force_place;Force placement;]]..(smeta.advschem_force_place or "false")..[[]
 				button[5,0.1;1.5,1;rst;Reset]
 				button[6.5,0.1;1.5,1;save;Save]
 			]]
@@ -583,10 +585,12 @@ advschem.add_form("probtool", {
 		end
 		local form = "size[5,4]"..
 			"label[0,0;Schematic Node Probability Tool]"..
-			"field[0.75,1;4,1;prob;Probability;"..prob.."]"..
+			"field[0.75,1;4,1;prob;Probability (0-127);"..prob.."]"..
+			"checkbox[0.60,1.5;force_place;Force placement;" .. force_place .. "]" ..
 			"button_exit[0.25,3;2,1;cancel;Cancel]"..
-			"button_exit[2.75,3;2,1;submit;Okay]"..
-			"tooltip[submit;Use the new probability value for this tool]"..
+			"button_exit[2.75,3;2,1;submit;Apply]"..
+			"tooltip[prob;Probability that the node will be placed]"..
+			"tooltip[force_place;If enabled, the node will replace nodes other than air and ignore]"..
 			"field_close_on_enter[prob;false]"
 		return form
 	end,
@@ -603,12 +607,17 @@ advschem.add_form("probtool", {
 					return
 				end
 
-				set_item_metadata(probtool, prob, false)
+				local force_place = self.force_place == true
+
+				set_item_metadata(probtool, prob, force_place)
 
 				player:set_wielded_item(probtool)
-
-				-- TODO: Force place
 			end
+		end
+		if fields.force_place == "true" then
+			self.force_place = true
+		elseif fields.force_place == "false" then
+			self.force_place = false
 		end
 	end,
 })
@@ -955,7 +964,7 @@ minetest.register_chatcommand("placeschem", {
 		if success == nil then
 			return false, "Schematic file could not be loaded!"
 		else
-			return true 
+			return true
 		end
 	end,
 })
