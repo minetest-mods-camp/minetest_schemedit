@@ -859,8 +859,15 @@ minetest.register_tool("advschem:probtool", {
 "It allows you to do two things:".."\n"..
 "1) Set a chance for a particular node not to be placed in schematic".."\n"..
 "2) Enable a node to replace blocks other than air and ignored when placed in a schematic",
-	_doc_items_usagehelp = "Leftclick to select a probability (0-127; 127 is for 100%) and to enable or disable force placement. Now rightclick any node with this tool to apply these settings to the node. This information is preserved in the node until it is destroyed or the tool is used again. Now you can use a schematic creator to save a region as usual, the nodes will now be saved with the special node settings applied.".."\n"..
-"Note that this tool only has an effect on the nodes with regards to schematics. The node behaviour itself is not changed at all.",
+	_doc_items_usagehelp = "\n"..
+"BASIC USAGE:".."\n"..
+"Punch to set the values to apply to nodes. Select a probability (0-127; 127 is for 100%) and to enable or disable force placement (force-placed nodes will overwrite any node). Now place the tool on any to apply these settings to the node. This information is preserved in the node until it is destroyed or changed by the tool again.".."\n"..
+"Now you can use a schematic creator to save a region as usual, the nodes will now be saved with the special node settings applied.".."\n\n"..
+"NODE HUD:".."\n"..
+"To help you remember the node values, the nodes with special values are labelled in the HUD. The first line shows probability and force placement (with “[F]”). The second line is the current distance to the node. Nodes with default settings and schematic voids are not labelled.".."\n"..
+"To disable the node HUD, unselect the tool or hit “place” while not pointing anything.".."\n\n"..
+"UPDATING THE NODE HUD:".."\n"..
+"The node HUD is not updated automatically any may be outdated. The node HUD only updates the HUD for nodes close to you whenever you place the tool or press the punch and sneak keys simutanously. If you sneak-punch a schematic creator, then the node HUd is updated for all nodes within the schematic creator's region, even if this region is very big.",
 	wield_image = "advschem_probtool.png",
 	inventory_image = "advschem_probtool.png",
 	liquids_pointable = true,
