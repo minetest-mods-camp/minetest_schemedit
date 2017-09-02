@@ -212,9 +212,9 @@ advschem.add_form("main", {
 
 		local border_button
 		if meta.schem_border == "true" and advschem.markers[strpos] then
-			border_button = "button[3.5,7.5;3,1;border;Hide Border]"
+			border_button = "button[3.5,7.5;3,1;border;Hide border]"
 		else
-			border_button = "button[3.5,7.5;3,1;border;Show Border]"
+			border_button = "button[3.5,7.5;3,1;border;Show border]"
 		end
 
 		-- TODO: Show information regarding volume, pos1, pos2, etc... in formspec
@@ -223,23 +223,23 @@ advschem.add_form("main", {
 			label[0.5,-0.1;Position: ]]..strpos..[[]
 			label[3,-0.1;Owner: ]]..name..[[]
 
-			field[0.8,1;5,1;name;Schematic Name:;]]..(meta.schem_name or "")..[[]
+			field[0.8,1;5,1;name;Schematic name:;]]..(meta.schem_name or "")..[[]
 			button[5.3,0.69;1.2,1;save_name;Save]
 			tooltip[save_name;Save schematic name]
 			field_close_on_enter[name;false]
 
-			button[0.5,1.5;6,1;export;Export Schematic]
+			button[0.5,1.5;6,1;export;Export schematic]
 			label[0.5,2.2;Schematic will be exported as a .mts file and stored in]
 			label[0.5,2.45;<minetest dir>/worlds/<worldname>/schems/<name>.mts]
 
-			field[0.8,7;2,1;x;X-Size:;]]..meta.x_size..[[]
-			field[2.8,7;2,1;y;Y-Size:;]]..meta.y_size..[[]
-			field[4.8,7;2,1;z;Z-Size:;]]..meta.z_size..[[]
+			field[0.8,7;2,1;x;X size:;]]..meta.x_size..[[]
+			field[2.8,7;2,1;y;Y size:;]]..meta.y_size..[[]
+			field[4.8,7;2,1;z;Z size:;]]..meta.z_size..[[]
 			field_close_on_enter[x;false]
 			field_close_on_enter[y;false]
 			field_close_on_enter[z;false]
 
-			button[0.5,7.5;3,1;save;Save Size]
+			button[0.5,7.5;3,1;save;Save size]
 		]]..
 		border_button
 	end,
@@ -351,7 +351,7 @@ advschem.add_form("main", {
 
 advschem.add_form("prob", {
 	tab = true,
-	caption = "Probability",
+	caption = "Node Probabilities",
 	get = function(self, pos, name)
 		local meta = minetest.get_meta(pos)
 		local inventory = meta:get_inventory()
@@ -436,7 +436,7 @@ advschem.add_form("prob", {
 })
 
 advschem.add_form("slice", {
-	caption = "Y-Slice",
+	caption = "Y Slices",
 	tab = true,
 	get = function(self, pos, name, visible_panel)
 		local meta = minetest.get_meta(pos):to_table().fields
@@ -466,7 +466,7 @@ advschem.add_form("slice", {
 			end
 
 			form = form..[[
-				field[0.3,5.5;2.5,1;ypos;Y-Position (max ]]..(meta.y_size - 1)..[[):;]]..ypos_default..[[]
+				field[0.3,5.5;2.5,1;ypos;Y position (max. ]]..(meta.y_size - 1)..[[):;]]..ypos_default..[[]
 				field[2.8,5.5;2.5,1;prob;Probability (0-127):;]]..prob_default..[[]
 				field_close_on_enter[ypos;false]
 				field_close_on_enter[prob;false]
@@ -474,19 +474,19 @@ advschem.add_form("slice", {
 		end
 
 		if not self.panel_edit then
-			form = form.."button[0,4;2,1;add;+ Add Slice]"
+			form = form.."button[0,4;2,1;add;+ Add slice]"
 		end
 
 		if slices ~= "" and self.selected and not self.panel_add then
 			if not self.panel_edit then
 				form = form..[[
-					button[2,4;2,1;remove;- Remove Slice]
-					button[4,4;2,1;edit;+/- Edit Slice]
+					button[2,4;2,1;remove;- Remove slice]
+					button[4,4;2,1;edit;+/- Edit slice]
 				]]
 			else
 				form = form..[[
-					button[0,4;2,1;remove;- Remove Slice]
-					button[2,4;2,1;edit;+/- Edit Slice]
+					button[0,4;2,1;remove;- Remove slice]
+					button[2,4;2,1;edit;+/- Edit slice]
 				]]
 			end
 		end
@@ -925,7 +925,7 @@ minetest.register_chatcommand("placeschem", {
 	description = "Place schematic at the position specified or the current "..
 			"player position (loaded from "..minetest.get_worldpath().."/schems/)",
 	privs = {debug = true},
-	params = "[<schematic name>.mts] (<x> <y> <z>)",
+	params = "<schematic name>.mts [<x> <y> <z>]",
 	func = function(name, param)
 		local schem, p = string.match(param, "^([^ ]+) *(.*)$")
 		local pos      = minetest.string_to_pos(p)
