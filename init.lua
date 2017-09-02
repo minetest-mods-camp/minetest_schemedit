@@ -794,9 +794,9 @@ minetest.register_node("advschem:creator", {
 	description = "Schematic Creator",
 	_doc_items_longdesc = "The schematic creator is used to save a region of the world into a schematic file (.mts).",
 	_doc_items_usagehelp = "To get started, place the block facing directly in front of any bottom left corner of the structure you want to save. This block can only be accessed by the placer or by anyone with the “schematic_override” privilege.".."\n"..
-"To save a region, rightclick the block, enter the size, a schematic name and hit “Export schematic”. The file will always be saved in the world directory. You can use this name in the /placeschem command.".."\n"..
-"The other features of the schematic creator are optional and are used to allow to add randomness and fine-tuning.".."\n"..
-"Y slices are used to remove entire slices based on chance. For each slice of the schematic region along the Y axis, you can specify that it occours only with a certain chance. In the Y slice tab, you have to specify the Y slice height (0 = bottom) and a probability from 0 to 127 (127 is for 100%). By default, all Y slices occour always.".."\n"..
+"To save a region, rightclick the block, enter the size, a schematic name and hit “Export schematic”. The file will always be saved in the world directory. Note you can use this name in the /placeschem command to place the schematic again.".."\n\n"..
+"The other features of the schematic creator are optional and are used to allow to add randomness and fine-tuning.".."\n\n"..
+"Y slices are used to remove entire slices based on chance. For each slice of the schematic region along the Y axis, you can specify that it occours only with a certain chance. In the Y slice tab, you have to specify the Y slice height (0 = bottom) and a probability from 0 to 127 (127 is for 100%). By default, all Y slices occour always.".."\n\n"..
 "With a schematic node probability tool, you can set a probability for each node and enable them to overwrite all nodes when placed as schematic. This tool must be used prior to the file export.",
 	tiles = {"advschem_creator_top.png", "advschem_creator_bottom.png",
 			"advschem_creator_sides.png"},
@@ -855,13 +855,13 @@ minetest.register_node("advschem:creator", {
 minetest.register_tool("advschem:probtool", {
 	description = "Schematic Node Probability Tool",
 	_doc_items_longdesc =
-"This tool can be used together with a schematic creator to finetune the way how nodes from a schematic are placed.".."\n"..
-"It allows you to do two things:".."\n"..
-"1) Set a chance for a particular node not to be placed in schematic".."\n"..
-"2) Enable a node to replace blocks other than air and ignored when placed in a schematic",
+"This is an advanced tool which only makes sense when used together with a schematic creator. It is used to finetune the way how nodes from a schematic are placed.".."\n"..
+"It allows you to set two things:".."\n"..
+"1) Set probability: Chance for any particular node to be actually placed (default: always placed)".."\n"..
+"2) Enable force placement: These nodes replace node other than air and ignored when placed in a schematic (default: off)",
 	_doc_items_usagehelp = "\n"..
 "BASIC USAGE:".."\n"..
-"Punch to set the values to apply to nodes. Select a probability (0-127; 127 is for 100%) and to enable or disable force placement (force-placed nodes will overwrite any node). Now place the tool on any to apply these settings to the node. This information is preserved in the node until it is destroyed or changed by the tool again.".."\n"..
+"Punch to configure the tool. Select a probability (0-127; 127 is for 100%) and enable or disable force placement. Now place the tool on any node to apply these values to the node. This information is preserved in the node until it is destroyed or changed by the tool again. This tool has no effect on schematic voids.".."\n"..
 "Now you can use a schematic creator to save a region as usual, the nodes will now be saved with the special node settings applied.".."\n\n"..
 "NODE HUD:".."\n"..
 "To help you remember the node values, the nodes with special values are labelled in the HUD. The first line shows probability and force placement (with “[F]”). The second line is the current distance to the node. Nodes with default settings and schematic voids are not labelled.".."\n"..
