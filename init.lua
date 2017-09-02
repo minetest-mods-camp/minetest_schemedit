@@ -928,14 +928,23 @@ minetest.register_chatcommand("placeschem", {
 	params = "<schematic name>.mts [<x> <y> <z>]",
 	func = function(name, param)
 		local schem, p = string.match(param, "^([^ ]+) *(.*)$")
-		local pos      = minetest.string_to_pos(p)
+		local pos = minetest.string_to_pos(p)
+
+		if not schem then
+			return false, "No schematic file specified."
+		end
 
 		if not pos then
 			pos = minetest.get_player_by_name(name):get_pos()
 		end
 
-		return true, "Success: "..dump(minetest.place_schematic(pos,
-				minetest.get_worldpath().."/schems/"..schem..".mts", "random", nil, false))
+		local success = minetest.place_schematic(pos, minetest.get_worldpath().."/schems/"..schem..".mts", "random", nil, false)
+
+		if success == nil then
+			return false, "Schematic file could not be loaded!"
+		else
+			return true 
+		end
 	end,
 })
 
