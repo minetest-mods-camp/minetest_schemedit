@@ -832,11 +832,18 @@ minetest.register_tool("advschem:probtool", {
 	on_secondary_use = function(itemstack, user, pointed_thing)
 		advschem.clear_displayed_node_probs(user)
 	end,
+	-- Set note probability and force_place
 	on_place = function(itemstack, placer, pointed_thing)
+		-- Use pointed node's on_rightclick function first, if present
+		local node = minetest.get_node(pointed_thing.under)
+		if placer and not placer:get_player_control().sneak then
+			if minetest.registered_nodes[node.name] and minetest.registered_nodes[node.name].on_rightclick then
+				return minetest.registered_nodes[node.name].on_rightclick(pointed_thing.under, node, placer, itemstack) or itemstack
+			end
+		end
 
 		-- This sets the node probability of pointed node to the
 		-- currently used probability stored in the tool.
-
 		local pos = pointed_thing.under
 		local node = minetest.get_node(pos)
 		-- Schematic void are ignored, they always have probability 0
