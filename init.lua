@@ -388,8 +388,10 @@ advschem.add_form("slice", {
 			local done_button = "button[5,7.18;2,1;done_add;Done]"
 			if self.panel_edit then
 				done_button = "button[5,7.18;2,1;done_edit;Done]"
-				ypos_default = slice_list[self.selected].ypos
-				prob_default = slice_list[self.selected].prob
+				if slice_list[self.selected] then
+					ypos_default = slice_list[self.selected].ypos
+					prob_default = slice_list[self.selected].prob
+				end
 			end
 
 			form = form..[[
