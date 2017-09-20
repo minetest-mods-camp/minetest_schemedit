@@ -1,4 +1,4 @@
-# Schematic Editor [schemedit]
+# Schematic Editor [`schemedit`]
 
 ## Version
 1.0.0
@@ -18,6 +18,8 @@ It also adds the server command `placeschem` to place a schematic.
 
 ## Usage help
 Usage help can be found when you use the optional Help modpack (mods `doc` and `doc_items`).
+
+You should also refer to the Minetest Lua API documentation to understand more about schematics.
 
 ## License of everything
 MIT License
