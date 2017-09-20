@@ -32,6 +32,20 @@ local tabs = {}
 local forms = {}
 local displayed_waypoints = {}
 
+-- Sadly, the probabilities presented in Lua (0-255) are not identical to the REAL probabilities in the
+-- schematic file (0-127). There are two converter functions to convert from one probability type to another.
+-- This mod tries to retain the “Lua probability” as long as possible and only switches to “schematic probability”
+-- on an actual export to a schematic.
+
+function advschem.lua_prob_to_schematic_prob(lua_prob)
+	return math.floor(lua_prob / 2)
+end
+
+function advschem.schematic_prob_to_lua_prob(schematic_prob)
+	return schematic_prob * 2
+
+end
+
 -- [function] Add form
 function advschem.add_form(name, def)
 	def.name = name
@@ -136,7 +150,7 @@ advschem.scan_metadata = function(pos1, pos2)
 		else
 			local meta = minetest.get_meta(scanpos)
 
-			prob = tonumber(meta:get_string("advschem_prob")) or 127
+			prob = tonumber(meta:get_string("advschem_prob")) or 255
 			local fp = meta:get_string("advschem_force_place")
 			if fp == "true" then
 				force_place = true
@@ -166,9 +180,9 @@ local function set_item_metadata(itemstack, prob, force_place)
 	local prob_desc = "\nProbability: "..(prob) or
 			smeta:get_string("advschem_prob") or "Not Set"
 	-- Update probability
-	if prob and prob >= 0 and prob < 127 then
+	if prob and prob >= 0 and prob < 255 then
 		smeta:set_string("advschem_prob", tostring(prob))
-	elseif prob and prob == 127 then
+	elseif prob and prob == 255 then
 		-- Clear prob metadata for default probability
 		prob_desc = ""
 		smeta:set_string("advschem_prob", nil)
@@ -314,7 +328,7 @@ advschem.add_form("main", {
 			local plist = advschem.scan_metadata(pos1, pos2)
 			local probability_list = {}
 			for hash, i in pairs(plist) do
-				local prob = i.prob
+				local prob = advschem.lua_prob_to_schematic_prob(i.prob)
 				if i.force_place == true then
 					prob = prob + 128
 				end
@@ -330,7 +344,7 @@ advschem.add_form("main", {
 			for _, i in pairs(slist) do
 				slice_list[#slice_list + 1] = {
 					ypos = pos.y + i.ypos,
-					prob = i.prob,
+					prob = advschem.lua_prob_to_schematic_prob(i.prob),
 				}
 			end
 
@@ -396,7 +410,7 @@ advschem.add_form("slice", {
 
 			form = form..[[
 				field[0.3,7.5;2.5,1;ypos;Y position (max. ]]..(meta.y_size - 1)..[[):;]]..ypos_default..[[]
-				field[2.8,7.5;2.5,1;prob;Probability (0-127):;]]..prob_default..[[]
+				field[2.8,7.5;2.5,1;prob;Probability (0-255):;]]..prob_default..[[]
 				field_close_on_enter[ypos;false]
 				field_close_on_enter[prob;false]
 			]]..done_button
@@ -501,14 +515,14 @@ advschem.add_form("probtool", {
 		local force_place = meta:get_string("advschem_force_place")
 
 		if not prob then
-			prob = 127
+			prob = 255
 		end
 		if force_place == nil or force_place == "" then
 			force_place = "false"
 		end
 		local form = "size[5,4]"..
 			"label[0,0;Schematic Node Probability Tool]"..
-			"field[0.75,1;4,1;prob;Probability (0-127);"..prob.."]"..
+			"field[0.75,1;4,1;prob;Probability (0-255);"..prob.."]"..
 			"checkbox[0.60,1.5;force_place;Force placement;" .. force_place .. "]" ..
 			"button_exit[0.25,3;2,1;cancel;Cancel]"..
 			"button_exit[2.75,3;2,1;submit;Apply]"..
@@ -808,7 +822,7 @@ minetest.register_node("advschem:creator", {
 	_doc_items_usagehelp = "To get started, place the block facing directly in front of any bottom left corner of the structure you want to save. This block can only be accessed by the placer or by anyone with the “schematic_override” privilege.".."\n"..
 "To save a region, rightclick the block, enter the size, a schematic name and hit “Export schematic”. The file will always be saved in the world directory. Note you can use this name in the /placeschem command to place the schematic again.".."\n\n"..
 "The other features of the schematic creator are optional and are used to allow to add randomness and fine-tuning.".."\n\n"..
-"Y slices are used to remove entire slices based on chance. For each slice of the schematic region along the Y axis, you can specify that it occours only with a certain chance. In the Y slice tab, you have to specify the Y slice height (0 = bottom) and a probability from 0 to 127 (127 is for 100%). By default, all Y slices occour always.".."\n\n"..
+"Y slices are used to remove entire slices based on chance. For each slice of the schematic region along the Y axis, you can specify that it occours only with a certain chance. In the Y slice tab, you have to specify the Y slice height (0 = bottom) and a probability from 0 to 255 (255 is for 100%). By default, all Y slices occour always.".."\n\n"..
 "With a schematic node probability tool, you can set a probability for each node and enable them to overwrite all nodes when placed as schematic. This tool must be used prior to the file export.",
 	tiles = {"advschem_creator_top.png", "advschem_creator_bottom.png",
 			"advschem_creator_sides.png"},
@@ -873,7 +887,7 @@ minetest.register_tool("advschem:probtool", {
 "2) Enable force placement: These nodes replace node other than air and ignored when placed in a schematic (default: off)",
 	_doc_items_usagehelp = "\n"..
 "BASIC USAGE:".."\n"..
-"Punch to configure the tool. Select a probability (0-127; 127 is for 100%) and enable or disable force placement. Now place the tool on any node to apply these values to the node. This information is preserved in the node until it is destroyed or changed by the tool again. This tool has no effect on schematic voids.".."\n"..
+"Punch to configure the tool. Select a probability (0-255; 255 is for 100%) and enable or disable force placement. Now place the tool on any node to apply these values to the node. This information is preserved in the node until it is destroyed or changed by the tool again. This tool has no effect on schematic voids.".."\n"..
 "Now you can use a schematic creator to save a region as usual, the nodes will now be saved with the special node settings applied.".."\n\n"..
 "NODE HUD:".."\n"..
 "To help you remember the node values, the nodes with special values are labelled in the HUD. The first line shows probability and force placement (with “[F]”). The second line is the current distance to the node. Nodes with default settings and schematic voids are not labelled.".."\n"..
@@ -938,7 +952,7 @@ minetest.register_tool("advschem:probtool", {
 		local prob = tonumber(imeta:get_string("advschem_prob"))
 		local force_place = imeta:get_string("advschem_force_place")
 
-		if not prob or prob == 127 then
+		if not prob or prob == 255 then
 			nmeta:set_string("advschem_prob", nil)
 		else
 			nmeta:set_string("advschem_prob", prob)
