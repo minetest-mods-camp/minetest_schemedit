@@ -1,6 +1,4 @@
--- advschem/init.lua
-
-local advschem = {}
+local schemedit = {}
 
 -- Directory delimeter fallback (normally comes from builtin)
 if not DIR_DELIM then
@@ -11,7 +9,7 @@ local export_path_full = table.concat({minetest.get_worldpath(), "schems"}, DIR_
 local text_color = "#D79E9E"
 local text_color_number = 0xD79E9E
 
-advschem.markers = {}
+schemedit.markers = {}
 
 -- [local function] Renumber table
 local function renumber(t)
@@ -37,17 +35,17 @@ local displayed_waypoints = {}
 -- This mod tries to retain the “Lua probability” as long as possible and only switches to “schematic probability”
 -- on an actual export to a schematic.
 
-function advschem.lua_prob_to_schematic_prob(lua_prob)
+function schemedit.lua_prob_to_schematic_prob(lua_prob)
 	return math.floor(lua_prob / 2)
 end
 
-function advschem.schematic_prob_to_lua_prob(schematic_prob)
+function schemedit.schematic_prob_to_lua_prob(schematic_prob)
 	return schematic_prob * 2
 
 end
 
 -- [function] Add form
-function advschem.add_form(name, def)
+function schemedit.add_form(name, def)
 	def.name = name
 	forms[name] = def
 
@@ -57,7 +55,7 @@ function advschem.add_form(name, def)
 end
 
 -- [function] Generate tabs
-function advschem.generate_tabs(current)
+function schemedit.generate_tabs(current)
 	local retval = "tabheader[0,0;tabs;"
 	for _, t in pairs(tabs) do
 		local f = forms[t]
@@ -75,16 +73,16 @@ function advschem.generate_tabs(current)
 end
 
 -- [function] Handle tabs
-function advschem.handle_tabs(pos, name, fields)
+function schemedit.handle_tabs(pos, name, fields)
 	local tab = tonumber(fields.tabs)
 	if tab and tabs[tab] and forms[tabs[tab]] then
-		advschem.show_formspec(pos, name, forms[tabs[tab]].name)
+		schemedit.show_formspec(pos, name, forms[tabs[tab]].name)
 		return true
 	end
 end
 
 -- [function] Show formspec
-function advschem.show_formspec(pos, player, tab, show, ...)
+function schemedit.show_formspec(pos, player, tab, show, ...)
 	if forms[tab] then
 		if type(player) == "string" then
 			player = minetest.get_player_by_name(player)
@@ -98,18 +96,18 @@ function advschem.show_formspec(pos, player, tab, show, ...)
 
 			local form = forms[tab].get(form_data[name], pos, name, ...)
 			if forms[tab].tab then
-				form = form..advschem.generate_tabs(tab)
+				form = form..schemedit.generate_tabs(tab)
 			end
 
-			minetest.show_formspec(name, "advschem:"..tab, form)
+			minetest.show_formspec(name, "schemedit:"..tab, form)
 			contexts[name] = pos
 
 			-- Update player attribute
 			if forms[tab].cache_name ~= false then
-				player:set_attribute("advschem:tab", tab)
+				player:set_attribute("schemedit:tab", tab)
 			end
 		else
-			minetest.close_formspec(pname, "advschem:"..tab)
+			minetest.close_formspec(pname, "schemedit:"..tab)
 		end
 	end
 end
@@ -118,7 +116,7 @@ end
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 	local formname = formname:split(":")
 
-	if formname[1] == "advschem" and forms[formname[2]] then
+	if formname[1] == "schemedit" and forms[formname[2]] then
 		local handle = forms[formname[2]].handle
 		local name = player:get_player_name()
 		if contexts[name] then
@@ -126,7 +124,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				form_data[name] = {}
 			end
 
-			if not advschem.handle_tabs(contexts[name], name, fields) and handle then
+			if not schemedit.handle_tabs(contexts[name], name, fields) and handle then
 				handle(form_data[name], contexts[name], name, fields)
 			end
 		end
@@ -134,7 +132,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 end)
 
 -- Helper function. Scans probabilities of all nodes in the given area and returns a prob_list
-advschem.scan_metadata = function(pos1, pos2)
+schemedit.scan_metadata = function(pos1, pos2)
 	local prob_list = {}
 
 	for x=pos1.x, pos2.x do
@@ -144,14 +142,14 @@ advschem.scan_metadata = function(pos1, pos2)
 		local node = minetest.get_node_or_nil(scanpos)
 
 		local prob, force_place
-		if node == nil or node.name == "advschem:void" then
+		if node == nil or node.name == "schemedit:void" then
 			prob = 0
 			force_place = false
 		else
 			local meta = minetest.get_meta(scanpos)
 
-			prob = tonumber(meta:get_string("advschem_prob")) or 255
-			local fp = meta:get_string("advschem_force_place")
+			prob = tonumber(meta:get_string("schemedit_prob")) or 255
+			local fp = meta:get_string("schemedit_force_place")
 			if fp == "true" then
 				force_place = true
 			else
@@ -178,24 +176,24 @@ end
 local function set_item_metadata(itemstack, prob, force_place)
 	local smeta = itemstack:get_meta()
 	local prob_desc = "\nProbability: "..(prob) or
-			smeta:get_string("advschem_prob") or "Not Set"
+			smeta:get_string("schemedit_prob") or "Not Set"
 	-- Update probability
 	if prob and prob >= 0 and prob < 255 then
-		smeta:set_string("advschem_prob", tostring(prob))
+		smeta:set_string("schemedit_prob", tostring(prob))
 	elseif prob and prob == 255 then
 		-- Clear prob metadata for default probability
 		prob_desc = ""
-		smeta:set_string("advschem_prob", nil)
+		smeta:set_string("schemedit_prob", nil)
 	else
-		prob_desc = "\nProbability: "..(smeta:get_string("advschem_prob") or
+		prob_desc = "\nProbability: "..(smeta:get_string("schemedit_prob") or
 				"Not Set")
 	end
 
 	-- Update force place
 	if force_place == true then
-		smeta:set_string("advschem_force_place", "true")
+		smeta:set_string("schemedit_force_place", "true")
 	elseif force_place == false then
-		smeta:set_string("advschem_force_place", nil)
+		smeta:set_string("schemedit_force_place", nil)
 	end
 
 	-- Update description
@@ -213,7 +211,7 @@ local function set_item_metadata(itemstack, prob, force_place)
 	end
 
 	local force_desc = ""
-	if smeta:get_string("advschem_force_place") == "true" then
+	if smeta:get_string("schemedit_force_place") == "true" then
 		force_desc = "\n".."Force placement"
 	end
 
@@ -228,7 +226,7 @@ end
 --- Formspec Tabs
 ---
 
-advschem.add_form("main", {
+schemedit.add_form("main", {
 	tab = true,
 	caption = "Main",
 	get = function(self, pos, name)
@@ -237,7 +235,7 @@ advschem.add_form("main", {
 		local hashpos = minetest.hash_node_position(pos)
 
 		local border_button
-		if meta.schem_border == "true" and advschem.markers[hashpos] then
+		if meta.schem_border == "true" and schemedit.markers[hashpos] then
 			border_button = "button[3.5,7.5;3,1;border;Hide border]"
 		else
 			border_button = "button[3.5,7.5;3,1;border;Show border]"
@@ -279,17 +277,17 @@ advschem.add_form("main", {
 		local hashpos = minetest.hash_node_position(pos)
 
 		if fields.doc then
-			doc.show_entry(name, "nodes", "advschem:creator", true)
+			doc.show_entry(name, "nodes", "schemedit:creator", true)
 			return
 		end
 
 		-- Toggle border
 		if fields.border then
-			if meta.schem_border == "true" and advschem.markers[hashpos] then
-				advschem.unmark(pos)
+			if meta.schem_border == "true" and schemedit.markers[hashpos] then
+				schemedit.unmark(pos)
 				meta.schem_border = "false"
 			else
-				advschem.mark(pos)
+				schemedit.mark(pos)
 				meta.schem_border = "true"
 			end
 		end
@@ -320,15 +318,15 @@ advschem.add_form("main", {
 
 		-- Export schematic
 		if fields.export and meta.schem_name and meta.schem_name ~= "" then
-			local pos1, pos2 = advschem.size(pos)
-			pos1, pos2 = advschem.sort_pos(pos1, pos2)
+			local pos1, pos2 = schemedit.size(pos)
+			pos1, pos2 = schemedit.sort_pos(pos1, pos2)
 			local path = export_path_full .. DIR_DELIM
 			minetest.mkdir(path)
 
-			local plist = advschem.scan_metadata(pos1, pos2)
+			local plist = schemedit.scan_metadata(pos1, pos2)
 			local probability_list = {}
 			for hash, i in pairs(plist) do
-				local prob = advschem.lua_prob_to_schematic_prob(i.prob)
+				local prob = schemedit.lua_prob_to_schematic_prob(i.prob)
 				if i.force_place == true then
 					prob = prob + 128
 				end
@@ -344,7 +342,7 @@ advschem.add_form("main", {
 			for _, i in pairs(slist) do
 				slice_list[#slice_list + 1] = {
 					ypos = pos.y + i.ypos,
-					prob = advschem.lua_prob_to_schematic_prob(i.prob),
+					prob = schemedit.lua_prob_to_schematic_prob(i.prob),
 				}
 			end
 
@@ -366,17 +364,17 @@ advschem.add_form("main", {
 
 		-- Update border
 		if not fields.border and meta.schem_border == "true" then
-			advschem.mark(pos)
+			schemedit.mark(pos)
 		end
 
 		-- Update formspec
 		if not fields.quit then
-			advschem.show_formspec(pos, minetest.get_player_by_name(name), "main")
+			schemedit.show_formspec(pos, minetest.get_player_by_name(name), "main")
 		end
 	end,
 })
 
-advschem.add_form("slice", {
+schemedit.add_form("slice", {
 	caption = "Y Slices",
 	tab = true,
 	get = function(self, pos, name, visible_panel)
@@ -448,10 +446,10 @@ advschem.add_form("slice", {
 		if fields.add then
 			if not self.panel_add then
 				self.panel_add = true
-				advschem.show_formspec(pos, player, "slice")
+				schemedit.show_formspec(pos, player, "slice")
 			else
 				self.panel_add = nil
-				advschem.show_formspec(pos, player, "slice")
+				schemedit.show_formspec(pos, player, "slice")
 			end
 		end
 
@@ -471,7 +469,7 @@ advschem.add_form("slice", {
 
 			-- Update and show formspec
 			self.panel_add = nil
-			advschem.show_formspec(pos, player, "slice")
+			schemedit.show_formspec(pos, player, "slice")
 		end
 
 		if fields.remove and self.selected then
@@ -482,22 +480,22 @@ advschem.add_form("slice", {
 			-- Update formspec
 			self.selected = 1
 			self.panel_edit = nil
-			advschem.show_formspec(pos, player, "slice")
+			schemedit.show_formspec(pos, player, "slice")
 		end
 
 		if fields.edit then
 			if not self.panel_edit then
 				self.panel_edit = true
-				advschem.show_formspec(pos, player, "slice")
+				schemedit.show_formspec(pos, player, "slice")
 			else
 				self.panel_edit = nil
-				advschem.show_formspec(pos, player, "slice")
+				schemedit.show_formspec(pos, player, "slice")
 			end
 		end
 	end,
 })
 
-advschem.add_form("probtool", {
+schemedit.add_form("probtool", {
 	cache_name = false,
 	caption = "Schematic Node Probability Tool",
 	get = function(self, pos, name)
@@ -506,13 +504,13 @@ advschem.add_form("probtool", {
 			return
 		end
 		local probtool = player:get_wielded_item()
-		if probtool:get_name() ~= "advschem:probtool" then
+		if probtool:get_name() ~= "schemedit:probtool" then
 			return
 		end
 
 		local meta = probtool:get_meta()
-		local prob = tonumber(meta:get_string("advschem_prob"))
-		local force_place = meta:get_string("advschem_force_place")
+		local prob = tonumber(meta:get_string("schemedit_prob"))
+		local force_place = meta:get_string("schemedit_force_place")
 
 		if not prob then
 			prob = 255
@@ -540,7 +538,7 @@ advschem.add_form("probtool", {
 					return
 				end
 				local probtool = player:get_wielded_item()
-				if probtool:get_name() ~= "advschem:probtool" then
+				if probtool:get_name() ~= "schemedit:probtool" then
 					return
 				end
 
@@ -566,7 +564,7 @@ advschem.add_form("probtool", {
 --- Copies and modifies positions `pos1` and `pos2` so that each component of
 -- `pos1` is less than or equal to the corresponding component of `pos2`.
 -- Returns the new positions.
-function advschem.sort_pos(pos1, pos2)
+function schemedit.sort_pos(pos1, pos2)
 	if not pos1 or not pos2 then
 		return
 	end
@@ -585,7 +583,7 @@ function advschem.sort_pos(pos1, pos2)
 end
 
 -- [function] Prepare size
-function advschem.size(pos)
+function schemedit.size(pos)
 	local pos1   = vector.new(pos)
 	local meta   = minetest.get_meta(pos)
 	local node   = minetest.get_node(pos)
@@ -620,13 +618,13 @@ function advschem.size(pos)
 end
 
 -- [function] Mark region
-function advschem.mark(pos)
-	advschem.unmark(pos)
+function schemedit.mark(pos)
+	schemedit.unmark(pos)
 
 	local id = minetest.hash_node_position(pos)
 	local owner = minetest.get_meta(pos):get_string("owner")
-	local pos1, pos2 = advschem.size(pos)
-	pos1, pos2 = advschem.sort_pos(pos1, pos2)
+	local pos1, pos2 = schemedit.size(pos)
+	pos1, pos2 = schemedit.sort_pos(pos1, pos2)
 
 	local thickness = 0.2
 	local sizex, sizey, sizez = (1 + pos2.x - pos1.x) / 2, (1 + pos2.y - pos1.y) / 2, (1 + pos2.z - pos1.z) / 2
@@ -641,7 +639,7 @@ function advschem.mark(pos)
 		else
 			offset = 0.01
 		end
-		local marker = minetest.add_entity({x = pos1.x + sizex - 0.5, y = pos1.y + sizey - 0.5, z = z + offset}, "advschem:display")
+		local marker = minetest.add_entity({x = pos1.x + sizex - 0.5, y = pos1.y + sizey - 0.5, z = z + offset}, "schemedit:display")
 		if marker ~= nil then
 			marker:set_properties({
 				visual_size={x=(sizex+0.01) * 2, y=sizey * 2},
@@ -662,7 +660,7 @@ function advschem.mark(pos)
 			offset = 0.01
 		end
 
-		local marker = minetest.add_entity({x = x + offset, y = pos1.y + sizey - 0.5, z = pos1.z + sizez - 0.5}, "advschem:display")
+		local marker = minetest.add_entity({x = x + offset, y = pos1.y + sizey - 0.5, z = pos1.z + sizez - 0.5}, "schemedit:display")
 		if marker ~= nil then
 			marker:set_properties({
 				visual_size={x=(sizez+0.01) * 2, y=sizey * 2},
@@ -675,16 +673,16 @@ function advschem.mark(pos)
 		low = false
 	end
 
-	advschem.markers[id] = m
+	schemedit.markers[id] = m
 	return true
 end
 
 -- [function] Unmark region
-function advschem.unmark(pos)
+function schemedit.unmark(pos)
 	local id = minetest.hash_node_position(pos)
-	if advschem.markers[id] then
+	if schemedit.markers[id] then
 		local retval
-		for _, entity in ipairs(advschem.markers[id]) do
+		for _, entity in ipairs(schemedit.markers[id]) do
 			entity:remove()
 			retval = true
 		end
@@ -700,7 +698,7 @@ end
 -- Probability is shown as a number followed by “[F]” if the node is force-placed.
 -- The distance to the node is also displayed below that. This can't be avoided and is
 -- and artifact of the waypoint HUD element. TODO: Hide displayed distance.
-function advschem.display_node_prob(player, pos, prob, force_place)
+function schemedit.display_node_prob(player, pos, prob, force_place)
 	local wpstring
 	if prob and force_place == true then
 		wpstring = string.format("%d [F]", prob)
@@ -723,7 +721,7 @@ end
 -- Display the node probabilities and force_place status of the nodes in a region.
 -- By default, this is done for nodes near the player (distance: 5).
 -- But the boundaries can optionally be set explicitly with pos1 and pos2.
-function advschem.display_node_probs_region(player, pos1, pos2)
+function schemedit.display_node_probs_region(player, pos1, pos2)
 	local playername = player:get_player_name()
 	local pos = vector.round(player:getpos())
 
@@ -749,9 +747,9 @@ function advschem.display_node_probs_region(player, pos1, pos2)
 
 				local prob, force_place
 				local meta = minetest.get_meta(checkpos)
-				prob = tonumber(meta:get_string("advschem_prob"))
-				force_place = meta:get_string("advschem_force_place") == "true"
-				local hud_id = advschem.display_node_prob(player, checkpos, prob, force_place)
+				prob = tonumber(meta:get_string("schemedit_prob"))
+				force_place = meta:get_string("schemedit_force_place") == "true"
+				local hud_id = schemedit.display_node_prob(player, checkpos, prob, force_place)
 				if hud_id then
 					displayed_waypoints[playername][nodehash] = hud_id
 					displayed_waypoints[playername].display_active = true
@@ -762,7 +760,7 @@ function advschem.display_node_probs_region(player, pos1, pos2)
 end
 
 -- Remove all active displayed node statuses.
-function advschem.clear_displayed_node_probs(player)
+function schemedit.clear_displayed_node_probs(player)
 	local playername = player:get_player_name()
 	for nodehash, hud_id in pairs(displayed_waypoints[playername]) do
 		player:hud_remove(hud_id)
@@ -796,8 +794,8 @@ minetest.register_globalstep(function(dtime)
 			local pname = player:get_player_name()
 			if displayed_waypoints[pname].display_active then
 				local item = player:get_wielded_item()
-				if item:get_name() ~= "advschem:probtool" then
-					advschem.clear_displayed_node_probs(player)
+				if item:get_name() ~= "schemedit:probtool" then
+					schemedit.clear_displayed_node_probs(player)
 				end
 			end
 		end
@@ -811,12 +809,12 @@ end)
 
 -- [priv] schematic_override
 minetest.register_privilege("schematic_override", {
-	description = "Allows you to access advschem nodes not owned by you",
+	description = "Allows you to access schemedit nodes not owned by you",
 	give_to_singleplayer = false,
 })
 
 -- [node] Schematic creator
-minetest.register_node("advschem:creator", {
+minetest.register_node("schemedit:creator", {
 	description = "Schematic Creator",
 	_doc_items_longdesc = "The schematic creator is used to save a region of the world into a schematic file (.mts).",
 	_doc_items_usagehelp = "To get started, place the block facing directly in front of any bottom left corner of the structure you want to save. This block can only be accessed by the placer or by anyone with the “schematic_override” privilege.".."\n"..
@@ -824,8 +822,8 @@ minetest.register_node("advschem:creator", {
 "The other features of the schematic creator are optional and are used to allow to add randomness and fine-tuning.".."\n\n"..
 "Y slices are used to remove entire slices based on chance. For each slice of the schematic region along the Y axis, you can specify that it occours only with a certain chance. In the Y slice tab, you have to specify the Y slice height (0 = bottom) and a probability from 0 to 255 (255 is for 100%). By default, all Y slices occour always.".."\n\n"..
 "With a schematic node probability tool, you can set a probability for each node and enable them to overwrite all nodes when placed as schematic. This tool must be used prior to the file export.",
-	tiles = {"advschem_creator_top.png", "advschem_creator_bottom.png",
-			"advschem_creator_sides.png"},
+	tiles = {"schemedit_creator_top.png", "schemedit_creator_bottom.png",
+			"schemedit_creator_sides.png"},
 	groups = { dig_immediate = 2},
 	paramtype2 = "facedir",
 	is_ground_content = false,
@@ -865,20 +863,20 @@ minetest.register_node("advschem:creator", {
 		if meta:get_string("owner") == name or
 				minetest.check_player_privs(player, "schematic_override") == true then
 			-- Get player attribute
-			local tab = player:get_attribute("advschem:tab")
+			local tab = player:get_attribute("schemedit:tab")
 			if not forms[tab] or not tab then
 				tab = "main"
 			end
 
-			advschem.show_formspec(pos, player, tab, true)
+			schemedit.show_formspec(pos, player, tab, true)
 		end
 	end,
 	after_destruct = function(pos)
-		advschem.unmark(pos)
+		schemedit.unmark(pos)
 	end,
 })
 
-minetest.register_tool("advschem:probtool", {
+minetest.register_tool("schemedit:probtool", {
 	description = "Schematic Node Probability Tool",
 	_doc_items_longdesc =
 "This is an advanced tool which only makes sense when used together with a schematic creator. It is used to finetune the way how nodes from a schematic are placed.".."\n"..
@@ -894,15 +892,15 @@ minetest.register_tool("advschem:probtool", {
 "To disable the node HUD, unselect the tool or hit “place” while not pointing anything.".."\n\n"..
 "UPDATING THE NODE HUD:".."\n"..
 "The node HUD is not updated automatically any may be outdated. The node HUD only updates the HUD for nodes close to you whenever you place the tool or press the punch and sneak keys simutanously. If you sneak-punch a schematic creator, then the node HUd is updated for all nodes within the schematic creator's region, even if this region is very big.",
-	wield_image = "advschem_probtool.png",
-	inventory_image = "advschem_probtool.png",
+	wield_image = "schemedit_probtool.png",
+	inventory_image = "schemedit_probtool.png",
 	liquids_pointable = true,
 	on_use = function(itemstack, user, pointed_thing)
 		local ctrl = user:get_player_control()
 		-- Simple use
 		if not ctrl.sneak then
 			-- Open dialog to change the probability to apply to nodes
-			advschem.show_formspec(user:getpos(), user, "probtool", true)
+			schemedit.show_formspec(user:getpos(), user, "probtool", true)
 
 		-- Use + sneak
 		else
@@ -914,20 +912,20 @@ minetest.register_tool("advschem:probtool", {
 			if pointed_thing and pointed_thing.type == "node" and pointed_thing.under then
 				punchpos = pointed_thing.under
 				local node = minetest.get_node(punchpos)
-				if node.name == "advschem:creator" then
-					local pos1, pos2 = advschem.size(punchpos)
-					pos1, pos2 = advschem.sort_pos(pos1, pos2)
-					advschem.display_node_probs_region(user, pos1, pos2)
+				if node.name == "schemedit:creator" then
+					local pos1, pos2 = schemedit.size(punchpos)
+					pos1, pos2 = schemedit.sort_pos(pos1, pos2)
+					schemedit.display_node_probs_region(user, pos1, pos2)
 					return
 				end
 			end
 
 			-- Otherwise, just display the region close to the player
-			advschem.display_node_probs_region(user)
+			schemedit.display_node_probs_region(user)
 		end
 	end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
-		advschem.clear_displayed_node_probs(user)
+		schemedit.clear_displayed_node_probs(user)
 	end,
 	-- Set note probability and force_place and enable node probability display
 	on_place = function(itemstack, placer, pointed_thing)
@@ -944,37 +942,37 @@ minetest.register_tool("advschem:probtool", {
 		local pos = pointed_thing.under
 		local node = minetest.get_node(pos)
 		-- Schematic void are ignored, they always have probability 0
-		if node.name == "advschem:void" then
+		if node.name == "schemedit:void" then
 			return itemstack
 		end
 		local nmeta = minetest.get_meta(pos)
 		local imeta = itemstack:get_meta()
-		local prob = tonumber(imeta:get_string("advschem_prob"))
-		local force_place = imeta:get_string("advschem_force_place")
+		local prob = tonumber(imeta:get_string("schemedit_prob"))
+		local force_place = imeta:get_string("schemedit_force_place")
 
 		if not prob or prob == 255 then
-			nmeta:set_string("advschem_prob", nil)
+			nmeta:set_string("schemedit_prob", nil)
 		else
-			nmeta:set_string("advschem_prob", prob)
+			nmeta:set_string("schemedit_prob", prob)
 		end
 		if force_place == "true" then
-			nmeta:set_string("advschem_force_place", "true")
+			nmeta:set_string("schemedit_force_place", "true")
 		else
-			nmeta:set_string("advschem_force_place", nil)
+			nmeta:set_string("schemedit_force_place", nil)
 		end
 
 		-- Enable node probablity display
-		advschem.display_node_probs_region(placer)
+		schemedit.display_node_probs_region(placer)
 
 		return itemstack
 	end,
 })
 
-minetest.register_node("advschem:void", {
+minetest.register_node("schemedit:void", {
 	description = "Schematic Void",
 	_doc_items_longdesc = "This is an utility block used in the creation of schematic files. It should be used together with a schematic creator. When saving a schematic, all nodes with a schematic void will be left unchanged when the schematic is placed again. Technically, this is equivalent to a block with the node probability set to 0.",
 	_doc_items_usagehelp = "Just place the schematic void like any other block and use the schematic creator to save a portion of the world.",
-	tiles = { "advschem_void.png" },
+	tiles = { "schemedit_void.png" },
 	drawtype = "nodebox",
 	is_ground_content = false,
 	paramtype = "light",
@@ -990,9 +988,9 @@ minetest.register_node("advschem:void", {
 })
 
 -- [entity] Visible schematic border
-minetest.register_entity("advschem:display", {
+minetest.register_entity("schemedit:display", {
 	visual = "upright_sprite",
-	textures = {"advschem_border.png"},
+	textures = {"schemedit_border.png"},
 	visual_size = {x=10, y=10},
 	collisionbox = {0,0,0,0,0,0},
 	physical = false,
@@ -1000,7 +998,7 @@ minetest.register_entity("advschem:display", {
 	on_step = function(self, dtime)
 		if not self.id then
 			self.object:remove()
-		elseif not advschem.markers[self.id] then
+		elseif not schemedit.markers[self.id] then
 			self.object:remove()
 		end
 	end,
