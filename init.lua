@@ -392,7 +392,7 @@ schemedit.add_form("slice", {
 		local slices = ""
 		for _, i in pairs(slice_list) do
 			local insert = F(S("Y = @1; Probability = @2", tostring(i.ypos), tostring(i.prob)))
-			slices = slices..F(insert)..","
+			slices = slices..insert..","
 		end
 		slices = slices:sub(1, -2) -- Remove final comma
 
