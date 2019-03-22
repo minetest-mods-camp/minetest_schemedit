@@ -9,6 +9,9 @@ if not DIR_DELIM then
 end
 local export_path_full = table.concat({minetest.get_worldpath(), "schems"}, DIR_DELIM)
 
+-- truncated export path so the server directory structure is not exposed publicly
+local export_path_trunc = table.concat({S("<world path>"), "schems"}, DIR_DELIM)
+
 local text_color = "#D79E9E"
 local text_color_number = 0xD79E9E
 
@@ -257,7 +260,7 @@ schemedit.add_form("main", {
 
 			button[0.5,1.5;6,1;export;]]..F(S("Export schematic"))..[[]
 			textarea[0.8,2.5;6.2,5;;]]..F(S("The schematic will be exported as a .mts file and stored in\n@1",
-			export_path_full .. DIR_DELIM .. "<name>.mts."))..[[;]
+			export_path_trunc .. DIR_DELIM .. "<name>.mts."))..[[;]
 			field[0.8,7;2,1;x;X size:;]]..meta.x_size..[[]
 			field[2.8,7;2,1;y;Y size:;]]..meta.y_size..[[]
 			field[4.8,7;2,1;z;Z size:;]]..meta.z_size..[[]
@@ -1012,7 +1015,7 @@ minetest.register_entity("schemedit:display", {
 
 -- [chatcommand] Place schematic
 minetest.register_chatcommand("placeschem", {
-	description = S("Place schematic at the position specified or the current player position (loaded from @1.)", export_path_full),
+	description = S("Place schematic at the position specified or the current player position (loaded from @1)", export_path_trunc),
 	privs = {debug = true},
 	params = S("<schematic name>[.mts] [<x> <y> <z>]"),
 	func = function(name, param)
