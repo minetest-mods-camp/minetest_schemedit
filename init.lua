@@ -723,7 +723,7 @@ end
 -- But the boundaries can optionally be set explicitly with pos1 and pos2.
 function schemedit.display_node_probs_region(player, pos1, pos2)
 	local playername = player:get_player_name()
-	local pos = vector.round(player:getpos())
+	local pos = vector.round(player:get_pos())
 
 	local dist = 5
 	-- Default: 5 nodes away from player in any direction
@@ -900,7 +900,7 @@ minetest.register_tool("schemedit:probtool", {
 		-- Simple use
 		if not ctrl.sneak then
 			-- Open dialog to change the probability to apply to nodes
-			schemedit.show_formspec(user:getpos(), user, "probtool", true)
+			schemedit.show_formspec(user:get_pos(), user, "probtool", true)
 
 		-- Use + sneak
 		else
