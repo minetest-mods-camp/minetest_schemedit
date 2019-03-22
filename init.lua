@@ -552,6 +552,9 @@ schemedit.add_form("probtool", {
 
 				set_item_metadata(probtool, prob, force_place)
 
+				-- Repurpose the tool's wear bar to display the set probability
+				probtool:set_wear(math.floor(((255-prob)/255)*65535))
+
 				player:set_wielded_item(probtool)
 			end
 		end
