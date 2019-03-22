@@ -234,7 +234,7 @@ end
 
 schemedit.add_form("main", {
 	tab = true,
-	caption = "Main",
+	caption = S("Main"),
 	get = function(self, pos, name)
 		local meta = minetest.get_meta(pos):to_table().fields
 		local strpos = minetest.pos_to_string(pos)
@@ -261,9 +261,9 @@ schemedit.add_form("main", {
 			button[0.5,1.5;6,1;export;]]..F(S("Export schematic"))..[[]
 			textarea[0.8,2.5;6.2,5;;]]..F(S("The schematic will be exported as a .mts file and stored in\n@1",
 			export_path_trunc .. DIR_DELIM .. "<name>.mts."))..[[;]
-			field[0.8,7;2,1;x;X size:;]]..meta.x_size..[[]
-			field[2.8,7;2,1;y;Y size:;]]..meta.y_size..[[]
-			field[4.8,7;2,1;z;Z size:;]]..meta.z_size..[[]
+			field[0.8,7;2,1;x;]]..F(S("X size:"))..[[;]]..meta.x_size..[[]
+			field[2.8,7;2,1;y;]]..F(S("Y size:"))..[[;]]..meta.y_size..[[]
+			field[4.8,7;2,1;z;]]..F(S("Z size:"))..[[;]]..meta.z_size..[[]
 			field_close_on_enter[x;false]
 			field_close_on_enter[y;false]
 			field_close_on_enter[z;false]
