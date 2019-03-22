@@ -1,3 +1,6 @@
+local S = minetest.get_translator("schemedit")
+local F = minetest.formspec_escape
+
 local schemedit = {}
 
 -- Directory delimeter fallback (normally comes from builtin)
@@ -175,8 +178,8 @@ end
 -- The itemstack is updated in-place.
 local function set_item_metadata(itemstack, prob, force_place)
 	local smeta = itemstack:get_meta()
-	local prob_desc = "\nProbability: "..(prob) or
-			smeta:get_string("schemedit_prob") or "Not Set"
+	local prob_desc = "\n"..S("Probability: @1", prob or
+			smeta:get_string("schemedit_prob") or S("Not Set"))
 	-- Update probability
 	if prob and prob >= 0 and prob < 255 then
 		smeta:set_string("schemedit_prob", tostring(prob))
@@ -185,8 +188,8 @@ local function set_item_metadata(itemstack, prob, force_place)
 		prob_desc = ""
 		smeta:set_string("schemedit_prob", nil)
 	else
-		prob_desc = "\nProbability: "..(smeta:get_string("schemedit_prob") or
-				"Not Set")
+		prob_desc = "\n"..S("Probability: @1", smeta:get_string("schemedit_prob") or
+				S("Not Set"))
 	end
 
 	-- Update force place
@@ -212,7 +215,7 @@ local function set_item_metadata(itemstack, prob, force_place)
 
 	local force_desc = ""
 	if smeta:get_string("schemedit_force_place") == "true" then
-		force_desc = "\n".."Force placement"
+		force_desc = "\n"..S("Force placement")
 	end
 
 	desc = desc..minetest.colorize(text_color, prob_desc..force_desc)
@@ -236,25 +239,25 @@ schemedit.add_form("main", {
 
 		local border_button
 		if meta.schem_border == "true" and schemedit.markers[hashpos] then
-			border_button = "button[3.5,7.5;3,1;border;Hide border]"
+			border_button = "button[3.5,7.5;3,1;border;"..F(S("Hide border")).."]"
 		else
-			border_button = "button[3.5,7.5;3,1;border;Show border]"
+			border_button = "button[3.5,7.5;3,1;border;"..F(S("Show border")).."]"
 		end
 
 		-- TODO: Show information regarding volume, pos1, pos2, etc... in formspec
 		local form = [[
 			size[7,8]
-			label[0.5,-0.1;Position: ]]..strpos..[[]
-			label[3,-0.1;Owner: ]]..name..[[]
+			label[0.5,-0.1;]]..F(S("Position: @1", strpos))..[[]
+			label[3,-0.1;]]..F(S("Owner: @1", name))..[[]
 
-			field[0.8,1;5,1;name;Schematic name:;]]..minetest.formspec_escape(meta.schem_name or "")..[[]
-			button[5.3,0.69;1.2,1;save_name;Save]
-			tooltip[save_name;Save schematic name]
+			field[0.8,1;5,1;name;]]..F(S("Schematic name:"))..[[;]]..F(meta.schem_name or "")..[[]
+			button[5.3,0.69;1.2,1;save_name;]]..F(S("Save"))..[[]
+			tooltip[save_name;]]..F(S("Save schematic name"))..[[]
 			field_close_on_enter[name;false]
 
-			button[0.5,1.5;6,1;export;Export schematic]
-			textarea[0.8,2.5;6.2,5;;The schematic will be exported as a .mts file and stored in]]..
-			"\n" .. export_path_full .. DIR_DELIM .. [[<name>.mts.;]
+			button[0.5,1.5;6,1;export;]]..F(S("Export schematic"))..[[]
+			textarea[0.8,2.5;6.2,5;;]]..F(S("The schematic will be exported as a .mts file and stored in\n@1",
+			export_path_full .. DIR_DELIM .. "<name>.mts."))..[[;]
 			field[0.8,7;2,1;x;X size:;]]..meta.x_size..[[]
 			field[2.8,7;2,1;y;Y size:;]]..meta.y_size..[[]
 			field[4.8,7;2,1;z;Z size:;]]..meta.z_size..[[]
@@ -267,7 +270,7 @@ schemedit.add_form("main", {
 		border_button
 		if minetest.get_modpath("doc") then
 			form = form .. "image_button[6.4,-0.2;0.8,0.8;doc_button_icon_lores.png;doc;]" ..
-			"tooltip[doc;Help]"
+			"tooltip[doc;"..F(S("Help")).."]"
 		end
 		return form
 	end,
@@ -351,10 +354,10 @@ schemedit.add_form("main", {
 
 			if res then
 				minetest.chat_send_player(name, minetest.colorize("#00ff00",
-						"Exported schematic to "..filepath))
+						S("Exported schematic to @1", filepath)))
 			else
 				minetest.chat_send_player(name, minetest.colorize("red",
-						"Failed to export schematic to "..filepath))
+						S("Failed to export schematic to @1", filepath)))
 			end
 		end
 
@@ -375,7 +378,7 @@ schemedit.add_form("main", {
 })
 
 schemedit.add_form("slice", {
-	caption = "Y Slices",
+	caption = S("Y Slices"),
 	tab = true,
 	get = function(self, pos, name, visible_panel)
 		local meta = minetest.get_meta(pos):to_table().fields
@@ -385,8 +388,8 @@ schemedit.add_form("slice", {
 		local slice_list = minetest.deserialize(meta.slices)
 		local slices = ""
 		for _, i in pairs(slice_list) do
-			local insert = "Y = "..tostring(i.ypos).."; Probability = "..tostring(i.prob)
-			slices = slices..minetest.formspec_escape(insert)..","
+			local insert = F(S("Y = @1; Probability = @2", tostring(i.ypos), tostring(i.prob)))
+			slices = slices..F(insert)..","
 		end
 		slices = slices:sub(1, -2) -- Remove final comma
 
@@ -397,9 +400,9 @@ schemedit.add_form("slice", {
 
 		if self.panel_add or self.panel_edit then
 			local ypos_default, prob_default = "", ""
-			local done_button = "button[5,7.18;2,1;done_add;Done]"
+			local done_button = "button[5,7.18;2,1;done_add;"..F(S("Done")).."]"
 			if self.panel_edit then
-				done_button = "button[5,7.18;2,1;done_edit;Done]"
+				done_button = "button[5,7.18;2,1;done_edit;"..F(S("Done")).."]"
 				if slice_list[self.selected] then
 					ypos_default = slice_list[self.selected].ypos
 					prob_default = slice_list[self.selected].prob
@@ -407,27 +410,27 @@ schemedit.add_form("slice", {
 			end
 
 			form = form..[[
-				field[0.3,7.5;2.5,1;ypos;Y position (max. ]]..(meta.y_size - 1)..[[):;]]..ypos_default..[[]
-				field[2.8,7.5;2.5,1;prob;Probability (0-255):;]]..prob_default..[[]
+				field[0.3,7.5;2.5,1;ypos;]]..F(S("Y position (max. @1):", (meta.y_size - 1)))..[[;]]..ypos_default..[[]
+				field[2.8,7.5;2.5,1;prob;]]..F(S("Probability (0-255):"))..[[;]]..prob_default..[[]
 				field_close_on_enter[ypos;false]
 				field_close_on_enter[prob;false]
 			]]..done_button
 		end
 
 		if not self.panel_edit then
-			form = form.."button[0,6;2,1;add;+ Add slice]"
+			form = form.."button[0,6;2,1;add;"..F(S("+ Add slice")).."]"
 		end
 
 		if slices ~= "" and self.selected and not self.panel_add then
 			if not self.panel_edit then
 				form = form..[[
-					button[2,6;2,1;remove;- Remove slice]
-					button[4,6;2,1;edit;+/- Edit slice]
+					button[2,6;2,1;remove;]]..F(S("- Remove slice"))..[[]
+					button[4,6;2,1;edit;]]..F(S("+/- Edit slice"))..[[]
 				]]
 			else
 				form = form..[[
-					button[2,6;2,1;remove;- Remove slice]
-					button[4,6;2,1;edit;+/- Edit slice]
+					button[2,6;2,1;remove;]]..F(S("- Remove slice"))..[[]
+					button[4,6;2,1;edit;]]..F(S("+/- Edit slice"))..[[]
 				]]
 			end
 		end
@@ -497,7 +500,7 @@ schemedit.add_form("slice", {
 
 schemedit.add_form("probtool", {
 	cache_name = false,
-	caption = "Schematic Node Probability Tool",
+	caption = S("Schematic Node Probability Tool"),
 	get = function(self, pos, name)
 		local player = minetest.get_player_by_name(name)
 		if not player then
@@ -519,13 +522,13 @@ schemedit.add_form("probtool", {
 			force_place = "false"
 		end
 		local form = "size[5,4]"..
-			"label[0,0;Schematic Node Probability Tool]"..
-			"field[0.75,1;4,1;prob;Probability (0-255);"..prob.."]"..
-			"checkbox[0.60,1.5;force_place;Force placement;" .. force_place .. "]" ..
-			"button_exit[0.25,3;2,1;cancel;Cancel]"..
-			"button_exit[2.75,3;2,1;submit;Apply]"..
-			"tooltip[prob;Probability that the node will be placed]"..
-			"tooltip[force_place;If enabled, the node will replace nodes other than air and ignore]"..
+			"label[0,0;"..F(S("Schematic Node Probability Tool")).."]"..
+			"field[0.75,1;4,1;prob;"..F(S("Probability (0-255)"))..";"..prob.."]"..
+			"checkbox[0.60,1.5;force_place;"..F(S("Force placement"))..";" .. force_place .. "]" ..
+			"button_exit[0.25,3;2,1;cancel;"..F(S("Cancel")).."]"..
+			"button_exit[2.75,3;2,1;submit;"..F(S("Apply")).."]"..
+			"tooltip[prob;"..F(S("Probability that the node will be placed")).."]"..
+			"tooltip[force_place;"..F(S("If enabled, the node will replace nodes other than air and ignore")).."]"..
 			"field_close_on_enter[prob;false]"
 		return form
 	end,
@@ -809,19 +812,19 @@ end)
 
 -- [priv] schematic_override
 minetest.register_privilege("schematic_override", {
-	description = "Allows you to access schemedit nodes not owned by you",
+	description = S("Allows you to access schemedit nodes not owned by you"),
 	give_to_singleplayer = false,
 })
 
 -- [node] Schematic creator
 minetest.register_node("schemedit:creator", {
-	description = "Schematic Creator",
-	_doc_items_longdesc = "The schematic creator is used to save a region of the world into a schematic file (.mts).",
-	_doc_items_usagehelp = "To get started, place the block facing directly in front of any bottom left corner of the structure you want to save. This block can only be accessed by the placer or by anyone with the “schematic_override” privilege.".."\n"..
-"To save a region, rightclick the block, enter the size, a schematic name and hit “Export schematic”. The file will always be saved in the world directory. Note you can use this name in the /placeschem command to place the schematic again.".."\n\n"..
-"The other features of the schematic creator are optional and are used to allow to add randomness and fine-tuning.".."\n\n"..
-"Y slices are used to remove entire slices based on chance. For each slice of the schematic region along the Y axis, you can specify that it occours only with a certain chance. In the Y slice tab, you have to specify the Y slice height (0 = bottom) and a probability from 0 to 255 (255 is for 100%). By default, all Y slices occour always.".."\n\n"..
-"With a schematic node probability tool, you can set a probability for each node and enable them to overwrite all nodes when placed as schematic. This tool must be used prior to the file export.",
+	description = S("Schematic Creator"),
+	_doc_items_longdesc = S("The schematic creator is used to save a region of the world into a schematic file (.mts)."),
+	_doc_items_usagehelp = S("To get started, place the block facing directly in front of any bottom left corner of the structure you want to save. This block can only be accessed by the placer or by anyone with the “schematic_override” privilege.").."\n"..
+S("To save a region, rightclick the block, enter the size, a schematic name and hit “Export schematic”. The file will always be saved in the world directory. Note you can use this name in the /placeschem command to place the schematic again.").."\n\n"..
+S("The other features of the schematic creator are optional and are used to allow to add randomness and fine-tuning.").."\n\n"..
+S("Y slices are used to remove entire slices based on chance. For each slice of the schematic region along the Y axis, you can specify that it occours only with a certain chance. In the Y slice tab, you have to specify the Y slice height (0 = bottom) and a probability from 0 to 255 (255 is for 100%). By default, all Y slices occour always.").."\n\n"..
+S("With a schematic node probability tool, you can set a probability for each node and enable them to overwrite all nodes when placed as schematic. This tool must be used prior to the file export."),
 	tiles = {"schemedit_creator_top.png", "schemedit_creator_bottom.png",
 			"schemedit_creator_sides.png"},
 	groups = { dig_immediate = 2},
@@ -833,7 +836,7 @@ minetest.register_node("schemedit:creator", {
 		local meta = minetest.get_meta(pos)
 
 		meta:set_string("owner", name)
-		meta:set_string("infotext", "Schematic Creator\n(owned by "..name..")")
+		meta:set_string("infotext", S("Schematic Creator").."\n"..S("(owned by @1)", name))
 		meta:set_string("prob_list", minetest.serialize({}))
 		meta:set_string("slices", minetest.serialize({}))
 
@@ -877,21 +880,21 @@ minetest.register_node("schemedit:creator", {
 })
 
 minetest.register_tool("schemedit:probtool", {
-	description = "Schematic Node Probability Tool",
+	description = S("Schematic Node Probability Tool"),
 	_doc_items_longdesc =
-"This is an advanced tool which only makes sense when used together with a schematic creator. It is used to finetune the way how nodes from a schematic are placed.".."\n"..
-"It allows you to set two things:".."\n"..
-"1) Set probability: Chance for any particular node to be actually placed (default: always placed)".."\n"..
-"2) Enable force placement: These nodes replace node other than air and ignored when placed in a schematic (default: off)",
+S("This is an advanced tool which only makes sense when used together with a schematic creator. It is used to finetune the way how nodes from a schematic are placed.").."\n"..
+S("It allows you to set two things:").."\n"..
+S("1) Set probability: Chance for any particular node to be actually placed (default: always placed)").."\n"..
+S("2) Enable force placement: These nodes replace node other than air and ignored when placed in a schematic (default: off)"),
 	_doc_items_usagehelp = "\n"..
-"BASIC USAGE:".."\n"..
-"Punch to configure the tool. Select a probability (0-255; 255 is for 100%) and enable or disable force placement. Now place the tool on any node to apply these values to the node. This information is preserved in the node until it is destroyed or changed by the tool again. This tool has no effect on schematic voids.".."\n"..
-"Now you can use a schematic creator to save a region as usual, the nodes will now be saved with the special node settings applied.".."\n\n"..
-"NODE HUD:".."\n"..
-"To help you remember the node values, the nodes with special values are labelled in the HUD. The first line shows probability and force placement (with “[F]”). The second line is the current distance to the node. Nodes with default settings and schematic voids are not labelled.".."\n"..
-"To disable the node HUD, unselect the tool or hit “place” while not pointing anything.".."\n\n"..
-"UPDATING THE NODE HUD:".."\n"..
-"The node HUD is not updated automatically any may be outdated. The node HUD only updates the HUD for nodes close to you whenever you place the tool or press the punch and sneak keys simutanously. If you sneak-punch a schematic creator, then the node HUd is updated for all nodes within the schematic creator's region, even if this region is very big.",
+S("BASIC USAGE:").."\n"..
+S("Punch to configure the tool. Select a probability (0-255; 255 is for 100%) and enable or disable force placement. Now place the tool on any node to apply these values to the node. This information is preserved in the node until it is destroyed or changed by the tool again. This tool has no effect on schematic voids.").."\n"..
+S("Now you can use a schematic creator to save a region as usual, the nodes will now be saved with the special node settings applied.").."\n\n"..
+S("NODE HUD:").."\n"..
+S("To help you remember the node values, the nodes with special values are labelled in the HUD. The first line shows probability and force placement (with “[F]”). The second line is the current distance to the node. Nodes with default settings and schematic voids are not labelled.").."\n"..
+S("To disable the node HUD, unselect the tool or hit “place” while not pointing anything.").."\n\n"..
+S("UPDATING THE NODE HUD:").."\n"..
+S("The node HUD is not updated automatically any may be outdated. The node HUD only updates the HUD for nodes close to you whenever you place the tool or press the punch and sneak keys simutanously. If you sneak-punch a schematic creator, then the node HUd is updated for all nodes within the schematic creator's region, even if this region is very big."),
 	wield_image = "schemedit_probtool.png",
 	inventory_image = "schemedit_probtool.png",
 	liquids_pointable = true,
@@ -969,9 +972,9 @@ minetest.register_tool("schemedit:probtool", {
 })
 
 minetest.register_node("schemedit:void", {
-	description = "Schematic Void",
-	_doc_items_longdesc = "This is an utility block used in the creation of schematic files. It should be used together with a schematic creator. When saving a schematic, all nodes with a schematic void will be left unchanged when the schematic is placed again. Technically, this is equivalent to a block with the node probability set to 0.",
-	_doc_items_usagehelp = "Just place the schematic void like any other block and use the schematic creator to save a portion of the world.",
+	description = S("Schematic Void"),
+	_doc_items_longdesc = S("This is an utility block used in the creation of schematic files. It should be used together with a schematic creator. When saving a schematic, all nodes with a schematic void will be left unchanged when the schematic is placed again. Technically, this is equivalent to a block with the node probability set to 0."),
+	_doc_items_usagehelp = S("Just place the schematic void like any other block and use the schematic creator to save a portion of the world."),
 	tiles = { "schemedit_void.png" },
 	drawtype = "nodebox",
 	is_ground_content = false,
@@ -1009,16 +1012,15 @@ minetest.register_entity("schemedit:display", {
 
 -- [chatcommand] Place schematic
 minetest.register_chatcommand("placeschem", {
-	description = "Place schematic at the position specified or the current "..
-			"player position (loaded from "..export_path_full..".",
+	description = S("Place schematic at the position specified or the current player position (loaded from @1.)", export_path_full),
 	privs = {debug = true},
-	params = "<schematic name>[.mts] [<x> <y> <z>]",
+	params = S("<schematic name>[.mts] [<x> <y> <z>]"),
 	func = function(name, param)
 		local schem, p = string.match(param, "^([^ ]+) *(.*)$")
 		local pos = minetest.string_to_pos(p)
 
 		if not schem then
-			return false, "No schematic file specified."
+			return false, S("No schematic file specified.")
 		end
 
 		if not pos then
@@ -1036,7 +1038,7 @@ minetest.register_chatcommand("placeschem", {
 		local success = minetest.place_schematic(pos, export_path_full .. DIR_DELIM .. schem_full, "random", nil, false)
 
 		if success == nil then
-			return false, "Schematic file could not be loaded!"
+			return false, S("Schematic file could not be loaded!")
 		else
 			return true
 		end
