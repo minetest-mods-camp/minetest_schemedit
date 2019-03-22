@@ -268,7 +268,7 @@ schemedit.add_form("main", {
 			field_close_on_enter[y;false]
 			field_close_on_enter[z;false]
 
-			button[0.5,7.5;3,1;save;Save size]
+			button[0.5,7.5;3,1;save;]]..F(S("Save size"))..[[]
 		]]..
 		border_button
 		if minetest.get_modpath("doc") then
