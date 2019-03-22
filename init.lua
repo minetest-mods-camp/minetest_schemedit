@@ -901,6 +901,7 @@ S("The node HUD is not updated automatically any may be outdated. The node HUD o
 	wield_image = "schemedit_probtool.png",
 	inventory_image = "schemedit_probtool.png",
 	liquids_pointable = true,
+	groups = { disable_repair = 1 },
 	on_use = function(itemstack, user, pointed_thing)
 		local ctrl = user:get_player_control()
 		-- Simple use
