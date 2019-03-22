@@ -998,8 +998,9 @@ minetest.register_entity("schemedit:display", {
 	visual = "upright_sprite",
 	textures = {"schemedit_border.png"},
 	visual_size = {x=10, y=10},
-	collisionbox = {0,0,0,0,0,0},
+	pointable = false,
 	physical = false,
+	glow = minetest.LIGHT_MAX,
 
 	on_step = function(self, dtime)
 		if not self.id then
