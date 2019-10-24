@@ -1004,6 +1004,7 @@ minetest.register_entity("schemedit:display", {
 	visual_size = {x=10, y=10},
 	pointable = false,
 	physical = false,
+	static_save = false,
 	glow = minetest.LIGHT_MAX,
 
 	on_step = function(self, dtime)
@@ -1015,6 +1016,17 @@ minetest.register_entity("schemedit:display", {
 	end,
 	on_activate = function(self)
 		self.object:set_armor_groups({immortal = 1})
+	end,
+})
+
+minetest.register_lbm({
+	label = "Reset schematic creator border entities",
+	name = "schemedit:reset_border",
+	nodenames = "schemedit:creator",
+	run_at_every_load = true,
+	action = function(pos, node)
+		local meta = minetest.get_meta(pos)
+		meta:set_string("schem_border", "false")
 	end,
 })
 
