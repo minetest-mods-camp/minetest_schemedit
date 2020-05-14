@@ -789,7 +789,7 @@ function schemedit.display_node_prob(player, pos, prob, force_place)
 	local wpstring
 	if prob and force_place == true then
 		wpstring = string.format("%d [F]", prob)
-	elseif prob then
+	elseif prob and type(tonumber(prob)) == "number" then
 		wpstring = prob
 	elseif force_place == true then
 		wpstring = "[F]"
@@ -834,7 +834,7 @@ function schemedit.display_node_probs_region(player, pos1, pos2)
 
 				local prob, force_place
 				local meta = minetest.get_meta(checkpos)
-				prob = tonumber(meta:get_string("schemedit_prob"))
+				prob = meta:get_string("schemedit_prob")
 				force_place = meta:get_string("schemedit_force_place") == "true"
 				local hud_id = schemedit.display_node_prob(player, checkpos, prob, force_place)
 				if hud_id then
