@@ -403,9 +403,45 @@ schemedit.add_form("main", {
 				else
 					pos1 = vector.add(pos, {x=0,y=0,z=1})
 				end
-				schematic.yslice_prob = {}
 
+				local schematic_for_meta = table.copy(schematic)
+				-- Strip probability data for placement
+				schematic.yslice_prob = {}
+				for d=1, #schematic.data do
+					schematic.data[d].prob = nil
+				end
+
+				-- Place schematic
 				success = minetest.place_schematic(pos1, schematic, "0", nil, true)
+
+				-- Add special schematic data to nodes
+				if success then
+					local d = 1
+					for z=0, meta.z_size-1 do
+					for y=0, meta.y_size-1 do
+					for x=0, meta.x_size-1 do
+						local data = schematic_for_meta.data[d]
+						local pp = {x=pos1.x+x, y=pos1.y+y, z=pos1.z+z}
+						if data.prob == 0 then
+							minetest.set_node(pp, {name="schemedit:void"})
+						else
+							local meta = minetest.get_meta(pp)
+							if data.prob and data.prob ~= 255 and data.prob ~= 254 then
+								meta:set_string("schemedit_prob", tostring(data.prob))
+							else
+								meta:set_string("schemedit_prob", "")
+							end
+							if data.force_place then
+								meta:set_string("schemedit_force_place", "true")
+							else
+								meta:set_string("schemedit_force_place", "")
+							end
+						end
+						d = d + 1
+					end
+					end
+					end
+				end
 			end
 			if success then
 				minetest.chat_send_player(name, minetest.colorize("#00ff00",
