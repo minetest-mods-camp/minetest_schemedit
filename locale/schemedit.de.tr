@@ -11,6 +11,7 @@ Schematic name:=Schematic-Name:
 Save=Speichern
 Save schematic name=Schematic-Name speichern
 Export schematic=Schematic exportieren
+Import schematic=Schematic importieren
 The schematic will be exported as a .mts file and stored in@n@1=Das Schematic wird als .mts-Datei gespeichert in:@n@1
 Save size=Größe speichern
 Help=Hilfe

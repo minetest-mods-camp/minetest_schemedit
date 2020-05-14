@@ -231,7 +231,10 @@ end
 ---
 --- Formspec Tabs
 ---
-
+local import_btn = ""
+if minetest.read_schematic then
+	import_btn = "button[0.5,2.5;6,1;import;"..F(S("Import schematic")).."]"
+end
 schemedit.add_form("main", {
 	tab = true,
 	caption = S("Main"),
@@ -258,8 +261,9 @@ schemedit.add_form("main", {
 			tooltip[save_name;]]..F(S("Save schematic name"))..[[]
 			field_close_on_enter[name;false]
 
-			button[0.5,1.5;6,1;export;]]..F(S("Export schematic"))..[[]
-			textarea[0.8,2.5;6.2,5;;]]..F(S("The schematic will be exported as a .mts file and stored in\n@1",
+			button[0.5,1.5;6,1;export;]]..F(S("Export schematic")).."]"..
+			import_btn..[[
+			textarea[0.8,3.5;6.2,5;;]]..F(S("The schematic will be exported as a .mts file and stored in\n@1",
 			export_path_trunc .. DIR_DELIM .. "<name>.mts."))..[[;]
 			field[0.8,7;2,1;x;]]..F(S("X size:"))..[[;]]..meta.x_size..[[]
 			field[2.8,7;2,1;y;]]..F(S("Y size:"))..[[;]]..meta.y_size..[[]
@@ -363,6 +367,49 @@ schemedit.add_form("main", {
 						S("Failed to export schematic to @1", filepath)))
 			end
 		end
+
+		-- Import schematic
+		if fields.import and meta.schem_name and meta.schem_name ~= "" then
+			if not minetest.read_schematic then
+				return
+			end
+			local pos1
+			local node = minetest.get_node(pos)
+			local path = export_path_full .. DIR_DELIM
+
+			local filepath = path..meta.schem_name..".mts"
+			local schematic = minetest.read_schematic(filepath, {write_yslice_prob="low"})
+			local success = false
+
+			if schematic then
+				meta.x_size = schematic.size.x
+				meta.y_size = schematic.size.y
+				meta.z_size = schematic.size.z
+				meta.slices = minetest.serialize(schematic.yslice_prob)
+
+				if node.param2 == 1 then
+					pos1 = vector.add(pos, {x=1,y=0,z=-meta.z_size+1})
+				elseif node.param2 == 2 then
+					pos1 = vector.add(pos, {x=-meta.x_size+1,y=0,z=-meta.z_size})
+				elseif node.param2 == 3 then
+					pos1 = vector.add(pos, {x=-meta.x_size,y=0,z=0})
+				else
+					pos1 = vector.add(pos, {x=0,y=0,z=1})
+				end
+				schematic.yslice_prob = {}
+
+				success = minetest.place_schematic(pos1, schematic, "0", nil, true)
+			end
+			if success then
+				minetest.chat_send_player(name, minetest.colorize("#00ff00",
+						S("Imported schematic from @1", filepath)))
+			else
+				minetest.chat_send_player(name, minetest.colorize("red",
+						S("Failed to import schematic from @1", filepath)))
+			end
+		end
+
+
 
 		-- Save meta before updating visuals
 		local inv = realmeta:get_inventory():get_lists()
