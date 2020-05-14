@@ -954,6 +954,9 @@ S("With a schematic node probability tool, you can set a probability for each no
 	after_destruct = function(pos)
 		schemedit.unmark(pos)
 	end,
+
+	-- No support for Minetest Game's screwdriver
+	on_rotate = false,
 })
 
 minetest.register_tool("schemedit:probtool", {
