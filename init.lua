@@ -698,7 +698,7 @@ function schemedit.mark(pos)
 		local marker = minetest.add_entity({x = pos1.x + sizex - 0.5, y = pos1.y + sizey - 0.5, z = z + offset}, "schemedit:display")
 		if marker ~= nil then
 			marker:set_properties({
-				visual_size={x=(sizex+0.01) * 2, y=sizey * 2},
+				visual_size={x=(sizex+0.01) * 2, y=(sizey+0.01) * 2},
 			})
 			marker:get_luaentity().id = id
 			marker:get_luaentity().owner = owner
@@ -719,15 +719,39 @@ function schemedit.mark(pos)
 		local marker = minetest.add_entity({x = x + offset, y = pos1.y + sizey - 0.5, z = pos1.z + sizez - 0.5}, "schemedit:display")
 		if marker ~= nil then
 			marker:set_properties({
-				visual_size={x=(sizez+0.01) * 2, y=sizey * 2},
+				visual_size={x=(sizez+0.01) * 2, y=(sizey+0.01) * 2},
 			})
-			marker:set_yaw(math.pi / 2)
+			marker:set_rotation({x=0, y=math.pi / 2, z=0})
 			marker:get_luaentity().id = id
 			marker:get_luaentity().owner = owner
 			table.insert(m, marker)
 		end
 		low = false
 	end
+
+	low = true
+	-- XZ plane markers
+	for _, y in ipairs({pos1.y - 0.5, pos2.y + 0.5}) do
+		if low then
+			offset = -0.01
+		else
+			offset = 0.01
+		end
+
+		local marker = minetest.add_entity({x = pos1.x + sizex - 0.5, y = y + offset, z = pos1.z + sizez - 0.5}, "schemedit:display")
+		if marker ~= nil then
+			marker:set_properties({
+				visual_size={x=(sizex+0.01) * 2, y=(sizez+0.01) * 2},
+			})
+			marker:set_rotation({x=math.pi/2, y=0, z=0})
+			marker:get_luaentity().id = id
+			marker:get_luaentity().owner = owner
+			table.insert(m, marker)
+		end
+		low = false
+	end
+
+
 
 	schemedit.markers[id] = m
 	return true
