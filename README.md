@@ -6,11 +6,11 @@
 ## Description
 This is a mod which allows you to edit and export schematics (`.mts` files).
 
-It supports node porbabilities, forced node placement and slice probabilities.
+It supports node probabilities, forced node placement and slice probabilities.
 
 It adds 3 items:
 
-* Schematic Creator: Used to mark a region and export it as schematic
+* Schematic Creator: Used to mark a region and export or import it as schematic
 * Schematic Void: Marks a position in a schematic which should not replace anything when placed as a schematic
 * Schematic Node Probability Tool: Set per-node probabilities and forced node placement
 
