@@ -1002,7 +1002,7 @@ S("The node HUD is not updated automatically and may be outdated. The node HUD o
 			-- within the creator's region.
 			local use_creator_region = false
 			if pointed_thing and pointed_thing.type == "node" and pointed_thing.under then
-				punchpos = pointed_thing.under
+				local punchpos = pointed_thing.under
 				local node = minetest.get_node(punchpos)
 				if node.name == "schemedit:creator" then
 					local pos1, pos2 = schemedit.size(punchpos)
