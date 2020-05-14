@@ -252,24 +252,28 @@ schemedit.add_form("main", {
 			border_button = "button[3.5,7.5;3,1;border;"..F(S("Show border")).."]"
 		end
 
-		-- TODO: Show information regarding volume, pos1, pos2, etc... in formspec
+		local xs, ys, zs = meta.x_size or 1, meta.y_size or 1, meta.z_size or 1
+		local size = {x=xs, y=ys, z=zs}
+
 		local form = [[
 			size[7,8]
 			label[0.5,-0.1;]]..F(S("Position: @1", strpos))..[[]
 			label[3,-0.1;]]..F(S("Owner: @1", name))..[[]
+			label[0.5,0.4;]]..F(S("Schematic name: @1", meta.schem_name))..[[]
+			label[0.5,0.9;]]..F(S("Size: @1", minetest.pos_to_string(size)))..[[]
 
-			field[0.8,1;5,1;name;]]..F(S("Schematic name:"))..[[;]]..F(meta.schem_name or "")..[[]
-			button[5.3,0.69;1.2,1;save_name;]]..F(S("OK"))..[[]
+			field[0.8,2;5,1;name;]]..F(S("Schematic name:"))..[[;]]..F(meta.schem_name or "")..[[]
+			button[5.3,1.69;1.2,1;save_name;]]..F(S("OK"))..[[]
 			tooltip[save_name;]]..F(S("Save schematic name"))..[[]
 			field_close_on_enter[name;false]
 
-			button[0.5,1.5;6,1;export;]]..F(S("Export schematic")).."]"..
+			button[0.5,3.5;6,1;export;]]..F(S("Export schematic")).."]"..
 			import_btn..[[
-			textarea[0.8,3.5;6.2,5;;]]..F(S("Export/import path:\n@1",
+			textarea[0.8,4.5;6.2,5;;]]..F(S("Export/import path:\n@1",
 			export_path_trunc .. DIR_DELIM .. F(S("<name>"))..".mts"))..[[;]
-			field[0.8,7;2,1;x;]]..F(S("X size:"))..[[;]]..meta.x_size..[[]
-			field[2.8,7;2,1;y;]]..F(S("Y size:"))..[[;]]..meta.y_size..[[]
-			field[4.8,7;2,1;z;]]..F(S("Z size:"))..[[;]]..meta.z_size..[[]
+			field[0.8,7;2,1;x;]]..F(S("X size:"))..[[;]]..xs..[[]
+			field[2.8,7;2,1;y;]]..F(S("Y size:"))..[[;]]..ys..[[]
+			field[4.8,7;2,1;z;]]..F(S("Z size:"))..[[;]]..zs..[[]
 			field_close_on_enter[x;false]
 			field_close_on_enter[y;false]
 			field_close_on_enter[z;false]
