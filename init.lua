@@ -943,6 +943,7 @@ minetest.register_node("schemedit:creator", {
 	_doc_items_longdesc = S("The schematic creator is used to save a region of the world into a schematic file (.mts)."),
 	_doc_items_usagehelp = S("To get started, place the block facing directly in front of any bottom left corner of the structure you want to save. This block can only be accessed by the placer or by anyone with the “schematic_override” privilege.").."\n"..
 S("To save a region, use the block, enter the size and a schematic name and hit “Export schematic”. The file will always be saved in the world directory. Note you can use this name in the /placeschem command to place the schematic again.").."\n\n"..
+S("Importing a schematic will load a schematic from the world directory, place it in front of the schematic creator and sets probability and force-place data accordingly.").."\n"..
 S("The other features of the schematic creator are optional and are used to allow to add randomness and fine-tuning.").."\n\n"..
 S("Y slices are used to remove entire slices based on chance. For each slice of the schematic region along the Y axis, you can specify that it occurs only with a certain chance. In the Y slice tab, you have to specify the Y slice height (0 = bottom) and a probability from 0 to 255 (255 is for 100%). By default, all Y slices occur always.").."\n\n"..
 S("With a schematic node probability tool, you can set a probability for each node and enable them to overwrite all nodes when placed as schematic. This tool must be used prior to the file export."),
