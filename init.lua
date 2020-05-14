@@ -468,19 +468,19 @@ schemedit.add_form("slice", {
 		end
 
 		if not self.panel_edit then
-			form = form.."button[0,6;2,1;add;"..F(S("+ Add slice")).."]"
+			form = form.."button[0,6;2.4,1;add;"..F(S("+ Add slice")).."]"
 		end
 
 		if slices ~= "" and self.selected and not self.panel_add then
 			if not self.panel_edit then
 				form = form..[[
-					button[2,6;2,1;remove;]]..F(S("- Remove slice"))..[[]
-					button[4,6;2,1;edit;]]..F(S("+/- Edit slice"))..[[]
+					button[2.4,6;2.4,1;remove;]]..F(S("- Remove slice"))..[[]
+					button[4.8,6;2.4,1;edit;]]..F(S("+/- Edit slice"))..[[]
 				]]
 			else
 				form = form..[[
-					button[2,6;2,1;remove;]]..F(S("- Remove slice"))..[[]
-					button[4,6;2,1;edit;]]..F(S("+/- Edit slice"))..[[]
+					button[2.4,6;2.4,1;remove;]]..F(S("- Remove slice"))..[[]
+					button[4.8,6;2.4,1;edit;]]..F(S("+/- Edit slice"))..[[]
 				]]
 			end
 		end
