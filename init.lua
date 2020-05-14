@@ -15,6 +15,8 @@ local export_path_trunc = table.concat({S("<world path>"), "schems"}, DIR_DELIM)
 local text_color = "#D79E9E"
 local text_color_number = 0xD79E9E
 
+local can_import = minetest.read_schematic ~= nil
+
 schemedit.markers = {}
 
 -- [local function] Renumber table
@@ -232,7 +234,7 @@ end
 --- Formspec Tabs
 ---
 local import_btn = ""
-if minetest.read_schematic then
+if can_import then
 	import_btn = "button[0.5,2.5;6,1;import;"..F(S("Import schematic")).."]"
 end
 schemedit.add_form("main", {
@@ -377,7 +379,7 @@ schemedit.add_form("main", {
 				return
 			end
 
-			if not minetest.read_schematic then
+			if not can_import then
 				return
 			end
 			local pos1
@@ -937,13 +939,18 @@ minetest.register_privilege("schematic_override", {
 	give_to_singleplayer = false,
 })
 
+local help_import = ""
+if can_import then
+	help_import = S("Importing a schematic will load a schematic from the world directory, place it in front of the schematic creator and sets probability and force-place data accordingly.").."\n"
+end
+
 -- [node] Schematic creator
 minetest.register_node("schemedit:creator", {
 	description = S("Schematic Creator"),
 	_doc_items_longdesc = S("The schematic creator is used to save a region of the world into a schematic file (.mts)."),
 	_doc_items_usagehelp = S("To get started, place the block facing directly in front of any bottom left corner of the structure you want to save. This block can only be accessed by the placer or by anyone with the “schematic_override” privilege.").."\n"..
 S("To save a region, use the block, enter the size and a schematic name and hit “Export schematic”. The file will always be saved in the world directory. Note you can use this name in the /placeschem command to place the schematic again.").."\n\n"..
-S("Importing a schematic will load a schematic from the world directory, place it in front of the schematic creator and sets probability and force-place data accordingly.").."\n"..
+help_import..
 S("The other features of the schematic creator are optional and are used to allow to add randomness and fine-tuning.").."\n\n"..
 S("Y slices are used to remove entire slices based on chance. For each slice of the schematic region along the Y axis, you can specify that it occurs only with a certain chance. In the Y slice tab, you have to specify the Y slice height (0 = bottom) and a probability from 0 to 255 (255 is for 100%). By default, all Y slices occur always.").."\n\n"..
 S("With a schematic node probability tool, you can set a probability for each node and enable them to overwrite all nodes when placed as schematic. This tool must be used prior to the file export."),
