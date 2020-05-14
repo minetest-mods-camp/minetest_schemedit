@@ -286,6 +286,31 @@ schemedit.add_form("main", {
 		local meta = realmeta:to_table().fields
 		local hashpos = minetest.hash_node_position(pos)
 
+		-- Save size vector values
+		if (fields.x and fields.x ~= "") then
+			local x = tonumber(fields.x)
+			if x then
+				meta.x_size = math.max(x, 1)
+			end
+		end
+		if (fields.y and fields.y ~= "") then
+			local y = tonumber(fields.y)
+			if y then
+				meta.y_size = math.max(y, 1)
+			end
+		end
+		if (fields.z and fields.z ~= "") then
+			local z = tonumber(fields.z)
+			if z then
+				meta.z_size = math.max(z, 1)
+			end
+		end
+
+		-- Save schematic name
+		if fields.name then
+			meta.schem_name = fields.name
+		end
+
 		if fields.doc then
 			doc.show_entry(name, "nodes", "schemedit:creator", true)
 			return
@@ -300,30 +325,6 @@ schemedit.add_form("main", {
 				schemedit.mark(pos)
 				meta.schem_border = "true"
 			end
-		end
-
-		-- Save size vector values
-		if (fields.save or fields.key_enter_field == "x" or
-				fields.key_enter_field == "y" or fields.key_enter_field == "z")
-				and (fields.x and fields.y and fields.z and fields.x ~= ""
-				and fields.y ~= "" and fields.z ~= "") then
-			local x, y, z = tonumber(fields.x), tonumber(fields.y), tonumber(fields.z)
-
-			if x then
-				meta.x_size = math.max(x, 1)
-			end
-			if y then
-				meta.y_size = math.max(y, 1)
-			end
-			if z then
-				meta.z_size = math.max(z, 1)
-			end
-		end
-
-		-- Save schematic name
-		if fields.save_name or fields.key_enter_field == "name" and fields.name and
-				fields.name ~= "" then
-			meta.schem_name = fields.name
 		end
 
 		-- Export schematic
