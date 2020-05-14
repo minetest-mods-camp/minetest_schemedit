@@ -798,6 +798,7 @@ function schemedit.display_node_prob(player, pos, prob, force_place)
 		return player:hud_add({
 			hud_elem_type = "waypoint",
 			name = wpstring,
+			precision = 0,
 			text = "m", -- For the distance artifact
 			number = text_color_number,
 			world_pos = pos,
