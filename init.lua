@@ -257,7 +257,7 @@ schemedit.add_form("main", {
 			label[3,-0.1;]]..F(S("Owner: @1", name))..[[]
 
 			field[0.8,1;5,1;name;]]..F(S("Schematic name:"))..[[;]]..F(meta.schem_name or "")..[[]
-			button[5.3,0.69;1.2,1;save_name;]]..F(S("Save"))..[[]
+			button[5.3,0.69;1.2,1;save_name;]]..F(S("OK"))..[[]
 			tooltip[save_name;]]..F(S("Save schematic name"))..[[]
 			field_close_on_enter[name;false]
 
