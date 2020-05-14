@@ -62,3 +62,4 @@ Main=
 X size:=
 Y size:=
 Z size:=
+Insufficient privileges! You need the “debug” privilege to do this.=

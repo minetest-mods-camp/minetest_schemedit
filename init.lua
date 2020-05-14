@@ -371,6 +371,12 @@ schemedit.add_form("main", {
 
 		-- Import schematic
 		if fields.import and meta.schem_name and meta.schem_name ~= "" then
+			if not minetest.get_player_privs(name).debug then
+				minetest.chat_send_player(name, minetest.colorize("red",
+						S("Insufficient privileges! You need the “debug” privilege to do this.")))
+				return
+			end
+
 			if not minetest.read_schematic then
 				return
 			end

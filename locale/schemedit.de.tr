@@ -63,3 +63,4 @@ Main=Grundeinstellungen
 X size:=X-Größe:
 Y size:=Y-Größe:
 Z size:=Z-Größe:
+Insufficient privileges! You need the “debug” privilege to do this.=Unzureichende Privilegien! Sie benötigen das „debug“-Privileg, um dies tun zu können.
