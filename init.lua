@@ -1047,7 +1047,7 @@ minetest.register_chatcommand("placeschem", {
 			pos = minetest.get_player_by_name(name):get_pos()
 		end
 
-		-- Automatiically add file name suffix if omitted
+		-- Automatically add file name suffix if omitted
 		local schem_full
 		if string.sub(schem, string.len(schem)-3, string.len(schem)) == ".mts" then
 			schem_full = schem
@@ -1055,7 +1055,20 @@ minetest.register_chatcommand("placeschem", {
 			schem_full = schem .. ".mts"
 		end
 
-		local success = minetest.place_schematic(pos, export_path_full .. DIR_DELIM .. schem_full, "random", nil, false)
+		local success = false
+		local schem_path = export_path_full .. DIR_DELIM .. schem_full
+		if minetest.read_schematic then
+			-- We don't call minetest.place_schematic with the path name directly because
+			-- this would trigger the caching and we wouldn't get any updates to the schematic
+			-- files when we reload. minetest.read_schematic circumvents that.
+			local schematic = minetest.read_schematic(schem_path, {})
+			if schematic then
+				success = minetest.place_schematic(pos, schematic, "random", nil, false)
+			end
+		else
+			-- Legacy support for Minetest versions that do not have minetest.read_schematic
+			success = minetest.place_schematic(schem_path, schematic, "random", nil, false)
+		end
 
 		if success == nil then
 			return false, S("Schematic file could not be loaded!")
