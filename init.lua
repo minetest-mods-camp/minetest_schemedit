@@ -265,8 +265,8 @@ schemedit.add_form("main", {
 
 			button[0.5,1.5;6,1;export;]]..F(S("Export schematic")).."]"..
 			import_btn..[[
-			textarea[0.8,3.5;6.2,5;;]]..F(S("The schematic will be exported as a .mts file and stored in\n@1",
-			export_path_trunc .. DIR_DELIM .. "<name>.mts."))..[[;]
+			textarea[0.8,3.5;6.2,5;;]]..F(S("Export/import path:\n@1",
+			export_path_trunc .. DIR_DELIM .. F(S("<name>"))..".mts"))..[[;]
 			field[0.8,7;2,1;x;]]..F(S("X size:"))..[[;]]..meta.x_size..[[]
 			field[2.8,7;2,1;y;]]..F(S("Y size:"))..[[;]]..meta.y_size..[[]
 			field[4.8,7;2,1;z;]]..F(S("Z size:"))..[[;]]..meta.z_size..[[]

@@ -1,5 +1,6 @@
 # textdomain: schemedit
 <world path>=<Weltpfad>
+<name>=<Name>
 Probability: @1=Wahrscheinlichkeit: @1
 Not Set=Nicht gesetzt
 Force placement=Platzierung erzwingen
@@ -15,6 +16,7 @@ Import schematic=Schematic importieren
 Imported schematic from @1=Schematic von @1 importiert
 Failed to import schematic from @1=Schematic konnte nicht von @1 importiert werden
 The schematic will be exported as a .mts file and stored in@n@1=Das Schematic wird als .mts-Datei gespeichert in:@n@1
+Export/import path:@n@1=Export-/Importpfad:@n@1
 Save size=Größe speichern
 Help=Hilfe
 Exported schematic to @1=Schematic nach @1 exportiert
