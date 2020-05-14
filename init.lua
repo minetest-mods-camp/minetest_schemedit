@@ -788,7 +788,7 @@ end
 function schemedit.display_node_prob(player, pos, prob, force_place)
 	local wpstring
 	if prob and force_place == true then
-		wpstring = string.format("%d [F]", prob)
+		wpstring = string.format("%s [F]", prob)
 	elseif prob and type(tonumber(prob)) == "number" then
 		wpstring = prob
 	elseif force_place == true then
