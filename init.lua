@@ -28,13 +28,15 @@ end
 
 minetest.register_privilege("schemedit")
 local NEEDED_PRIV = "schemedit"
-local function check_priv(player_name)
+local function check_priv(player_name, quit)
 	local privs = minetest.get_player_privs(player_name)
 	if privs[NEEDED_PRIV] then
 		return true
 	else
-		minetest.chat_send_player(player_name, minetest.colorize("red",
-				S("Insufficient privileges! You need the “@1” privilege to use this.", NEEDED_PRIV)))
+		if not quit then
+			minetest.chat_send_player(player_name, minetest.colorize("red",
+					S("Insufficient privileges! You need the “@1” privilege to use this.", NEEDED_PRIV)))
+		end
 		return false
 	end
 end
@@ -318,7 +320,12 @@ schemedit.add_form("main", {
 		return form
 	end,
 	handle = function(self, pos, name, fields)
-		if not check_priv(name) then
+		if fields.doc then
+			doc.show_entry(name, "nodes", "schemedit:creator", true)
+			return
+		end
+
+		if not check_priv(name, fields.quit) then
 			return
 		end
 
@@ -349,11 +356,6 @@ schemedit.add_form("main", {
 		-- Save schematic name
 		if fields.name then
 			meta.schem_name = fields.name
-		end
-
-		if fields.doc then
-			doc.show_entry(name, "nodes", "schemedit:creator", true)
-			return
 		end
 
 		-- Toggle border
@@ -575,7 +577,7 @@ schemedit.add_form("slice", {
 		return form
 	end,
 	handle = function(self, pos, name, fields)
-		if not check_priv(name) then
+		if not check_priv(name, fields.quit) then
 			return
 		end
 
@@ -674,7 +676,7 @@ schemedit.add_form("probtool", {
 		return form
 	end,
 	handle = function(self, pos, name, fields)
-		if not check_priv(name) then
+		if not check_priv(name, fields.quit) then
 			return
 		end
 
@@ -1116,10 +1118,20 @@ S("The node HUD is not updated automatically and may be outdated. The node HUD o
 		end
 	end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
+		local uname = user:get_player_name()
+		if uname and not check_priv(uname) then
+			return
+		end
+
 		schemedit.clear_displayed_node_probs(user)
 	end,
 	-- Set note probability and force_place and enable node probability display
 	on_place = function(itemstack, placer, pointed_thing)
+		local pname = placer:get_player_name()
+		if pname and not check_priv(pname) then
+			return
+		end
+
 		-- Use pointed node's on_rightclick function first, if present
 		local node = minetest.get_node(pointed_thing.under)
 		if placer and not placer:get_player_control().sneak then
