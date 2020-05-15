@@ -283,15 +283,16 @@ schemedit.add_form("main", {
 
 		local xs, ys, zs = meta.x_size or 1, meta.y_size or 1, meta.z_size or 1
 		local size = {x=xs, y=ys, z=zs}
+		local schem_name = meta.schem_name or ""
 
 		local form = [[
 			size[7,8]
 			label[0.5,-0.1;]]..F(S("Position: @1", strpos))..[[]
 			label[3,-0.1;]]..F(S("Owner: @1", name))..[[]
-			label[0.5,0.4;]]..F(S("Schematic name: @1", meta.schem_name))..[[]
+			label[0.5,0.4;]]..F(S("Schematic name: @1", F(schem_name)))..[[]
 			label[0.5,0.9;]]..F(S("Size: @1", minetest.pos_to_string(size)))..[[]
 
-			field[0.8,2;5,1;name;]]..F(S("Schematic name:"))..[[;]]..F(meta.schem_name or "")..[[]
+			field[0.8,2;5,1;name;]]..F(S("Schematic name:"))..[[;]]..F(schem_name or "")..[[]
 			button[5.3,1.69;1.2,1;save_name;]]..F(S("OK"))..[[]
 			tooltip[save_name;]]..F(S("Save schematic name"))..[[]
 			field_close_on_enter[name;false]
