@@ -3,10 +3,8 @@ local F = minetest.formspec_escape
 
 local schemedit = {}
 
--- Directory delimeter fallback (normally comes from builtin)
-if not DIR_DELIM then
-	DIR_DELIM = "/"
-end
+local DIR_DELIM = "/"
+
 local export_path_full = table.concat({minetest.get_worldpath(), "schems"}, DIR_DELIM)
 
 -- truncated export path so the server directory structure is not exposed publicly
