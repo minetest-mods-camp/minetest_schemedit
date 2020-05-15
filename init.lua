@@ -26,8 +26,7 @@ local function renumber(t)
 	return res
 end
 
-minetest.register_privilege("schemedit")
-local NEEDED_PRIV = "schemedit"
+local NEEDED_PRIV = "server"
 local function check_priv(player_name, quit)
 	local privs = minetest.get_player_privs(player_name)
 	if privs[NEEDED_PRIV] then
