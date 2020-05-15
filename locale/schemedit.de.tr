@@ -71,3 +71,6 @@ X size:=X-Größe:
 Y size:=Y-Größe:
 Z size:=Z-Größe:
 Insufficient privileges! You need the “debug” privilege to do this.=Unzureichende Privilegien! Sie benötigen das „debug“-Privileg, um dies tun zu können.
+Convert .mts schematic file to .lua file (loaded from @1)=„.mts“-Schematicdatei zu „.lua“-Datei konvertieren (geladen von @1)
+<schematic name>[.mts] [comments]=<Schematic-Name>[.mts] [comments]
+Failed.=Fehlgeschlagen.

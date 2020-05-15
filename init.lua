@@ -28,6 +28,24 @@ local function renumber(t)
 	return res
 end
 
+-- Lua export
+local export_schematic_to_lua
+if can_import then
+	export_schematic_to_lua = function(schematic, filepath, options)
+		if not options then options = {} end
+		local str = minetest.serialize_schematic(schematic, "lua", options)
+		local file = io.open(filepath, "w")
+		if file and str then
+			file:write(str)
+			file:flush()
+			file:close()
+			return true
+		else
+			return false
+		end
+	end
+end
+
 ---
 --- Formspec API
 ---
@@ -369,6 +387,16 @@ schemedit.add_form("main", {
 			if res then
 				minetest.chat_send_player(name, minetest.colorize("#00ff00",
 						S("Exported schematic to @1", filepath)))
+				-- Additional export to Lua file if MTS export was successful
+				local schematic = minetest.read_schematic(filepath, {})
+				if schematic and minetest.settings:get_bool("schemedit_export_lua") then
+					local filepath_lua = path..meta.schem_name..".lua"
+					res = export_schematic_to_lua(schematic, filepath_lua)
+					if res then
+						minetest.chat_send_player(name, minetest.colorize("#00ff00",
+								S("Exported schematic to @1", filepath_lua)))
+					end
+				end
 			else
 				minetest.chat_send_player(name, minetest.colorize("red",
 						S("Failed to export schematic to @1", filepath)))
@@ -1160,6 +1188,19 @@ minetest.register_lbm({
 	end,
 })
 
+local function add_suffix(schem)
+	-- Automatically add file name suffix if omitted
+	local schem_full, schem_lua
+	if string.sub(schem, string.len(schem)-3, string.len(schem)) == ".mts" then
+		schem_full = schem
+		schem_lua = string.sub(schem, 1, -5) .. ".lua"
+	else
+		schem_full = schem .. ".mts"
+		schem_lua = schem .. ".lua"
+	end
+	return schem_full, schem_lua
+end
+
 -- [chatcommand] Place schematic
 minetest.register_chatcommand("placeschem", {
 	description = S("Place schematic at the position specified or the current player position (loaded from @1)", export_path_trunc),
@@ -1177,14 +1218,7 @@ minetest.register_chatcommand("placeschem", {
 			pos = minetest.get_player_by_name(name):get_pos()
 		end
 
-		-- Automatically add file name suffix if omitted
-		local schem_full
-		if string.sub(schem, string.len(schem)-3, string.len(schem)) == ".mts" then
-			schem_full = schem
-		else
-			schem_full = schem .. ".mts"
-		end
-
+		local schem_full, schem_lua = add_suffix(schem)
 		local success = false
 		local schem_path = export_path_full .. DIR_DELIM .. schem_full
 		if minetest.read_schematic then
@@ -1208,3 +1242,39 @@ minetest.register_chatcommand("placeschem", {
 	end,
 })
 
+if can_import then
+-- [chatcommand] Convert MTS schematic file to .lua file
+minetest.register_chatcommand("mts2lua", {
+	description = S("Convert .mts schematic file to .lua file (loaded from @1)", export_path_trunc),
+	privs = {debug = true},
+	params = S("<schematic name>[.mts] [comments]"),
+	func = function(name, param)
+		local schem, comments_str = string.match(param, "^([^ ]+) *(.*)$")
+
+		if not schem then
+			return false, S("No schematic file specified.")
+		end
+
+		local comments = comments_str == "comments"
+
+		-- Automatically add file name suffix if omitted
+		local schem_full, schem_lua = add_suffix(schem)
+		local schem_path = export_path_full .. DIR_DELIM .. schem_full
+		local schematic = minetest.read_schematic(schem_path, {})
+
+		if schematic then
+			local str = minetest.serialize_schematic(schematic, "lua", {lua_use_comments=comments})
+			local lua_path = export_path_full .. DIR_DELIM .. schem_lua
+			local file = io.open(lua_path, "w")
+			if file and str then
+				file:write(str)
+				file:flush()
+				file:close()
+				return true, S("Exported schematic to @1", lua_path)
+			else
+				return false, S("Failed!")
+			end
+		end
+	end,
+})
+end
