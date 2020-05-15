@@ -26,6 +26,19 @@ local function renumber(t)
 	return res
 end
 
+minetest.register_privilege("schemedit")
+local NEEDED_PRIV = "schemedit"
+local function check_priv(player_name)
+	local privs = minetest.get_player_privs(player_name)
+	if privs[NEEDED_PRIV] then
+		return true
+	else
+		minetest.chat_send_player(player_name, minetest.colorize("red",
+				S("Insufficient privileges! You need the “@1” privilege to use this.", NEEDED_PRIV)))
+		return false
+	end
+end
+
 -- Lua export
 local export_schematic_to_lua
 if can_import then
@@ -304,6 +317,10 @@ schemedit.add_form("main", {
 		return form
 	end,
 	handle = function(self, pos, name, fields)
+		if not check_priv(name) then
+			return
+		end
+
 		local realmeta = minetest.get_meta(pos)
 		local meta = realmeta:to_table().fields
 		local hashpos = minetest.hash_node_position(pos)
@@ -403,12 +420,6 @@ schemedit.add_form("main", {
 
 		-- Import schematic
 		if fields.import and meta.schem_name and meta.schem_name ~= "" then
-			if not minetest.get_player_privs(name).debug then
-				minetest.chat_send_player(name, minetest.colorize("red",
-						S("Insufficient privileges! You need the “debug” privilege to do this.")))
-				return
-			end
-
 			if not can_import then
 				return
 			end
@@ -563,6 +574,10 @@ schemedit.add_form("slice", {
 		return form
 	end,
 	handle = function(self, pos, name, fields)
+		if not check_priv(name) then
+			return
+		end
+
 		local meta = minetest.get_meta(pos)
 		local player = minetest.get_player_by_name(name)
 
@@ -658,6 +673,10 @@ schemedit.add_form("probtool", {
 		return form
 	end,
 	handle = function(self, pos, name, fields)
+		if not check_priv(name) then
+			return
+		end
+
 		if fields.submit then
 			local prob = tonumber(fields.prob)
 			if prob then
@@ -1062,6 +1081,11 @@ S("The node HUD is not updated automatically and may be outdated. The node HUD o
 	liquids_pointable = true,
 	groups = { disable_repair = 1 },
 	on_use = function(itemstack, user, pointed_thing)
+		local uname = user:get_player_name()
+		if uname and not check_priv(uname) then
+			return
+		end
+
 		local ctrl = user:get_player_control()
 		-- Simple use
 		if not ctrl.sneak then
@@ -1202,7 +1226,7 @@ end
 -- [chatcommand] Place schematic
 minetest.register_chatcommand("placeschem", {
 	description = S("Place schematic at the position specified or the current player position (loaded from @1)", export_path_trunc),
-	privs = {debug = true},
+	privs = {server = true},
 	params = S("<schematic name>[.mts] [<x> <y> <z>]"),
 	func = function(name, param)
 		local schem, p = string.match(param, "^([^ ]+) *(.*)$")
@@ -1244,7 +1268,7 @@ if can_import then
 -- [chatcommand] Convert MTS schematic file to .lua file
 minetest.register_chatcommand("mts2lua", {
 	description = S("Convert .mts schematic file to .lua file (loaded from @1)", export_path_trunc),
-	privs = {debug = true},
+	privs = {server = true},
 	params = S("<schematic name>[.mts] [comments]"),
 	func = function(name, param)
 		local schem, comments_str = string.match(param, "^([^ ]+) *(.*)$")
