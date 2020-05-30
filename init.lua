@@ -300,7 +300,7 @@ schemedit.add_form("main", {
 
 			button[0.5,3.5;6,1;export;]]..F(S("Export schematic")).."]"..
 			import_btn..[[
-			textarea[0.8,4.5;6.2,5;;]]..F(S("Export/import path:\n@1",
+			textarea[0.8,4.5;6.2,2;;]]..F(S("Export/import path:\n@1",
 			export_path_trunc .. DIR_DELIM .. F(S("<name>"))..".mts"))..[[;]
 			field[0.8,7;2,1;x;]]..F(S("X size:"))..[[;]]..xs..[[]
 			field[2.8,7;2,1;y;]]..F(S("Y size:"))..[[;]]..ys..[[]
