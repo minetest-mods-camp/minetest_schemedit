@@ -72,3 +72,7 @@ Insufficient privileges! You need the “@1” privilege to use this.=
 Convert .mts schematic file to .lua file (loaded from @1)=
 <schematic name>[.mts] [comments]=
 Failed.=
+Air to voids=
+Voids to air=
+Turn all air nodes into schematic void nodes=
+Turn all schematic void nodes into air nodes=

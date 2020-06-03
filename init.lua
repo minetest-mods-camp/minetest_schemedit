@@ -300,15 +300,18 @@ schemedit.add_form("main", {
 
 			button[0.5,3.5;6,1;export;]]..F(S("Export schematic")).."]"..
 			import_btn..[[
-			textarea[0.8,4.5;6.2,2;;]]..F(S("Export/import path:\n@1",
+			textarea[0.8,4.5;6.2,1;;]]..F(S("Export/import path:\n@1",
 			export_path_trunc .. DIR_DELIM .. F(S("<name>"))..".mts"))..[[;]
+			button[0.5,5.5;3,1;air2void;]]..F(S("Air to voids"))..[[]
+			button[3.5,5.5;3,1;void2air;]]..F(S("Voids to air"))..[[]
+			tooltip[air2void;]]..F(S("Turn all air nodes into schematic void nodes"))..[[]
+			tooltip[void2air;]]..F(S("Turn all schematic void nodes into air nodes"))..[[]
 			field[0.8,7;2,1;x;]]..F(S("X size:"))..[[;]]..xs..[[]
 			field[2.8,7;2,1;y;]]..F(S("Y size:"))..[[;]]..ys..[[]
 			field[4.8,7;2,1;z;]]..F(S("Z size:"))..[[;]]..zs..[[]
 			field_close_on_enter[x;false]
 			field_close_on_enter[y;false]
 			field_close_on_enter[z;false]
-
 			button[0.5,7.5;3,1;save;]]..F(S("Save size"))..[[]
 		]]..
 		border_button
@@ -355,6 +358,21 @@ schemedit.add_form("main", {
 		-- Save schematic name
 		if fields.name then
 			meta.schem_name = fields.name
+		end
+
+		-- Node conversion
+		if (fields.air2void) then
+			local pos1, pos2 = schemedit.size(pos)
+			pos1, pos2 = schemedit.sort_pos(pos1, pos2)
+			local nodes = minetest.find_nodes_in_area(pos1, pos2, {"air"})
+			minetest.bulk_set_node(nodes, {name="schemedit:void"})
+			return
+		elseif (fields.void2air) then
+			local pos1, pos2 = schemedit.size(pos)
+			pos1, pos2 = schemedit.sort_pos(pos1, pos2)
+			local nodes = minetest.find_nodes_in_area(pos1, pos2, {"schemedit:void"})
+			minetest.bulk_set_node(nodes, {name="air"})
+			return
 		end
 
 		-- Toggle border

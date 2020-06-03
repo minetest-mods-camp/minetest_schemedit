@@ -74,3 +74,8 @@ Insufficient privileges! You need the “@1” privilege to use this.=Unzureiche
 Convert .mts schematic file to .lua file (loaded from @1)=„.mts“-Schematicdatei zu „.lua“-Datei konvertieren (geladen von @1)
 <schematic name>[.mts] [comments]=<Schematic-Name>[.mts] [comments]
 Failed.=Fehlgeschlagen.
+Air to voids=Luft zu Lücken
+Voids to air=Lücken zu Luft
+Turn all air nodes into schematic void nodes=Alle Luft-Nodes zu Schematic-Lücken umwandeln
+Turn all schematic void nodes into air nodes=Alle Schematic-Lücken zu Luft-Nodes umwandeln
+
