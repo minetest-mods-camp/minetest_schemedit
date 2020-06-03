@@ -142,7 +142,8 @@ function schemedit.show_formspec(pos, player, tab, show, ...)
 
 			-- Update player attribute
 			if forms[tab].cache_name ~= false then
-				player:set_attribute("schemedit:tab", tab)
+				local pmeta = player:get_meta()
+				pmeta:set_string("schemedit:tab", tab)
 			end
 		else
 			minetest.close_formspec(pname, "schemedit:"..tab)
@@ -1064,7 +1065,8 @@ S("With a schematic node probability tool, you can set a probability for each no
 		if meta:get_string("owner") == name or
 				minetest.check_player_privs(player, "schematic_override") == true then
 			-- Get player attribute
-			local tab = player:get_attribute("schemedit:tab")
+			local pmeta = player:get_meta()
+			local tab = pmeta:get_string("schemedit:tab")
 			if not forms[tab] or not tab then
 				tab = "main"
 			end
