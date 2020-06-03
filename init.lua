@@ -460,10 +460,12 @@ schemedit.add_form("main", {
 
 				if node.param2 == 1 then
 					pos1 = vector.add(pos, {x=1,y=0,z=-meta.z_size+1})
+					meta.x_size, meta.z_size = meta.z_size, meta.x_size
 				elseif node.param2 == 2 then
 					pos1 = vector.add(pos, {x=-meta.x_size+1,y=0,z=-meta.z_size})
 				elseif node.param2 == 3 then
 					pos1 = vector.add(pos, {x=-meta.x_size,y=0,z=0})
+					meta.x_size, meta.z_size = meta.z_size, meta.x_size
 				else
 					pos1 = vector.add(pos, {x=0,y=0,z=1})
 				end
