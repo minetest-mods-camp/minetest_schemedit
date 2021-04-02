@@ -1197,6 +1197,7 @@ minetest.register_node("schemedit:void", {
 	_doc_items_longdesc = S("This is an utility block used in the creation of schematic files. It should be used together with a schematic creator. When saving a schematic, all nodes with a schematic void will be left unchanged when the schematic is placed again. Technically, this is equivalent to a block with the node probability set to 0."),
 	_doc_items_usagehelp = S("Just place the schematic void like any other block and use the schematic creator to save a portion of the world."),
 	tiles = { "schemedit_void.png" },
+	use_texture_alpha = "clip",
 	drawtype = "nodebox",
 	is_ground_content = false,
 	paramtype = "light",
