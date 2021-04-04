@@ -571,8 +571,13 @@ schemedit.add_form("slice", {
 				end
 			end
 
+			local field_ypos = ""
+			if self.panel_add then
+				field_ypos = "field[0.3,7.5;2.5,1;ypos;"..F(S("Y position (max. @1):", (meta.y_size - 1)))..";"..ypos_default.."]"
+			end
+
 			form = form..[[
-				field[0.3,7.5;2.5,1;ypos;]]..F(S("Y position (max. @1):", (meta.y_size - 1)))..[[;]]..ypos_default..[[]
+				]]..field_ypos..[[
 				field[2.8,7.5;2.5,1;prob;]]..F(S("Probability (0-255):"))..[[;]]..prob_default..[[]
 				field_close_on_enter[ypos;false]
 				field_close_on_enter[prob;false]
@@ -626,8 +631,10 @@ schemedit.add_form("slice", {
 		end
 
 		local ypos, prob = tonumber(fields.ypos), tonumber(fields.prob)
-		if (fields.done_add or fields.done_edit) and fields.ypos and fields.prob and
-		fields.ypos ~= "" and fields.prob ~= "" and ypos and prob and
+		if fields.done_edit then
+			ypos = 0
+		end
+		if (fields.done_add or fields.done_edit) and ypos and prob and
 				 ypos <= (meta:get_int("y_size") - 1) and prob >= 0 and prob <= 255 then
 			local slice_list = minetest.deserialize(meta:get_string("slices"))
 			local index = #slice_list + 1
@@ -643,6 +650,9 @@ schemedit.add_form("slice", {
 						dupe = true
 					end
 				end
+			end
+			if fields.done_edit and slice_list[index] then
+				ypos = slice_list[index].ypos
 			end
 			if not dupe then
 				slice_list[index] = {ypos = ypos, prob = prob}
@@ -661,7 +671,7 @@ schemedit.add_form("slice", {
 			meta:set_string("slices", minetest.serialize(renumber(slice_list)))
 
 			-- Update formspec
-			self.selected = math.min(1, self.selected-1)
+			self.selected = math.max(1, self.selected-1)
 			self.panel_edit = nil
 			schemedit.show_formspec(pos, player, "slice")
 		end
