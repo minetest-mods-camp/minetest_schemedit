@@ -991,9 +991,11 @@ end
 function schemedit.clear_displayed_node_probs(player)
 	local playername = player:get_player_name()
 	for nodehash, hud_id in pairs(displayed_waypoints[playername]) do
-		player:hud_remove(hud_id)
-		displayed_waypoints[playername][nodehash] = nil
-		displayed_waypoints[playername].display_active = false
+		if nodehash ~= "display_active" then
+			player:hud_remove(hud_id)
+			displayed_waypoints[playername][nodehash] = nil
+			displayed_waypoints[playername].display_active = false
+		end
 	end
 end
 
