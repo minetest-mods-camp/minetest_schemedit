@@ -1297,11 +1297,16 @@ end
 
 -- [chatcommand] Place schematic
 minetest.register_chatcommand("placeschem", {
-	description = S("Place schematic at the position specified or the current player position (loaded from @1)", export_path_trunc),
+	description = S("Place schematic at the position specified or the current player position (loaded from @1). “-c” will clear the area first", export_path_trunc),
 	privs = {server = true},
-	params = S("<schematic name>[.mts] [<x> <y> <z>]"),
+	params = S("<schematic name>[.mts] [-c] [<x> <y> <z>]"),
 	func = function(name, param)
-		local schem, p = string.match(param, "^([^ ]+) *(.*)$")
+		local schem, clear, p = string.match(param, "^([^ ]+) (%-c) *(.*)$")
+		if not schem then
+			schem, p = string.match(param, "^([^ ]+) *(.*)$")
+		end
+		clear = clear == "-c"
+
 		local pos = minetest.string_to_pos(p)
 
 		if not schem then
@@ -1321,10 +1326,25 @@ minetest.register_chatcommand("placeschem", {
 			-- files when we reload. minetest.read_schematic circumvents that.
 			local schematic = minetest.read_schematic(schem_path, {})
 			if schematic then
+				if clear then
+					-- Clear same size for X and Z because
+					-- because schematic is randomly rotated
+					local max_xz = math.max(schematic.size.x, schematic.size.z)
+					local posses = {}
+					for z=pos.z, pos.z+max_xz-1 do
+					for y=pos.y, pos.y+schematic.size.y-1 do
+					for x=pos.x, pos.x+max_xz-1 do
+						table.insert(posses, {x=x,y=y,z=z})
+					end
+					end
+					end
+					minetest.bulk_set_node(posses, {name="air"})
+				end
 				success = minetest.place_schematic(pos, schematic, "random", nil, false)
 			end
 		else
-			-- Legacy support for Minetest versions that do not have minetest.read_schematic
+			-- Legacy support for Minetest versions that do not have minetest.read_schematic.
+			-- Note: "-c" is ignored here.
 			success = minetest.place_schematic(schem_path, schematic, "random", nil, false)
 		end
 
