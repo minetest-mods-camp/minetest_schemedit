@@ -940,6 +940,7 @@ function schemedit.display_node_prob(player, pos, prob, force_place)
 			text = "m", -- For the distance artifact [legacy]
 			number = text_color_number,
 			world_pos = pos,
+			z_index = -300,
 		})
 	end
 end
