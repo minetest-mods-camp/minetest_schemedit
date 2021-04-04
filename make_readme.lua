@@ -26,7 +26,7 @@ end
 
 
 -- Schemedit items to generate the readme from
-local items = { "creator", "void", "probtool" }
+local items = { "creator", "probtool", "void" }
 
 minetest.register_chatcommand("make_schemedit_readme", {
 	description = "Generate the schemedit usage help readme file",
@@ -47,7 +47,10 @@ minetest.register_chatcommand("make_schemedit_readme", {
 			readme = readme .. "### "..desc.."\n"
 			readme = readme .. longdesc .."\n\n"
 			readme = readme .. "#### Usage\n"
-			readme = readme .. usagehelp .."\n\n"
+			readme = readme .. usagehelp
+			if i < #items then
+				readme = readme .. "\n\n\n"
+			end
 		end
 
 		local path = minetest.get_worldpath().."/schemedit_readme.md"
