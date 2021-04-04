@@ -562,9 +562,9 @@ schemedit.add_form("slice", {
 
 		if self.panel_add or self.panel_edit then
 			local ypos_default, prob_default = "", ""
-			local done_button = "button[5,7.18;2,1;done_add;"..F(S("Done")).."]"
+			local done_button = "button[5,7.18;2,1;done_add;"..F(S("Add")).."]"
 			if self.panel_edit then
-				done_button = "button[5,7.18;2,1;done_edit;"..F(S("Done")).."]"
+				done_button = "button[5,7.18;2,1;done_edit;"..F(S("Apply")).."]"
 				if slice_list[self.selected] then
 					ypos_default = slice_list[self.selected].ypos
 					prob_default = slice_list[self.selected].prob
@@ -580,7 +580,11 @@ schemedit.add_form("slice", {
 		end
 
 		if not self.panel_edit then
-			form = form.."button[0,6;2.4,1;add;"..F(S("Add slice")).."]"
+			if self.panel_add then
+				form = form.."button[0,6;2.4,1;add;"..F(S("Cancel")).."]"
+			else
+				form = form.."button[0,6;2.4,1;add;"..F(S("Add slice")).."]"
+			end
 		end
 
 		if slices ~= "" and self.selected and not self.panel_add then
@@ -591,8 +595,7 @@ schemedit.add_form("slice", {
 				]]
 			else
 				form = form..[[
-					button[2.4,6;2.4,1;remove;]]..F(S("Remove slice"))..[[]
-					button[4.8,6;2.4,1;edit;]]..F(S("Edit slice"))..[[]
+					button[4.8,6;2.4,1;edit;]]..F(S("Back"))..[[]
 				]]
 			end
 		end
