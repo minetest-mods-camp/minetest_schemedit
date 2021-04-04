@@ -923,8 +923,6 @@ end
 
 -- Show probability and force_place status of a particular position for player in HUD.
 -- Probability is shown as a number followed by “[F]” if the node is force-placed.
--- The distance to the node is also displayed below that. This can't be avoided and is
--- and artifact of the waypoint HUD element.
 function schemedit.display_node_prob(player, pos, prob, force_place)
 	local wpstring
 	if prob and force_place == true then
@@ -939,7 +937,7 @@ function schemedit.display_node_prob(player, pos, prob, force_place)
 			hud_elem_type = "waypoint",
 			name = wpstring,
 			precision = 0,
-			text = "m", -- For the distance artifact
+			text = "m", -- For the distance artifact [legacy]
 			number = text_color_number,
 			world_pos = pos,
 		})
