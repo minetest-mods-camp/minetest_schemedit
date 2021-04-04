@@ -457,6 +457,9 @@ schemedit.add_form("main", {
 				meta.y_size = schematic.size.y
 				meta.z_size = schematic.size.z
 				meta.slices = minetest.serialize(schematic.yslice_prob)
+				local special_x_size = meta.x_size
+				local special_y_size = meta.y_size
+				local special_z_size = meta.z_size
 
 				if node.param2 == 1 then
 					pos1 = vector.add(pos, {x=1,y=0,z=-meta.z_size+1})
@@ -483,9 +486,9 @@ schemedit.add_form("main", {
 				-- Add special schematic data to nodes
 				if success then
 					local d = 1
-					for z=0, meta.z_size-1 do
-					for y=0, meta.y_size-1 do
-					for x=0, meta.x_size-1 do
+					for z=0, special_z_size-1 do
+					for y=0, special_y_size-1 do
+					for x=0, special_x_size-1 do
 						local data = schematic_for_meta.data[d]
 						local pp = {x=pos1.x+x, y=pos1.y+y, z=pos1.z+z}
 						if data.prob == 0 then
