@@ -1,7 +1,7 @@
 # Schematic Editor [`schemedit`]
 
 ## Version
-1.4.2
+1.4.3
 
 ## Description
 This is a mod which allows you to edit and export schematics (`.mts` files).
