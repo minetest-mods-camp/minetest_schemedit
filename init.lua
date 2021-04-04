@@ -1329,10 +1329,13 @@ minetest.register_chatcommand("placeschem", {
 			local schematic = minetest.read_schematic(schem_path, {})
 			if schematic then
 				if clear then
+					-- Clear same size for X and Z because
+					-- because schematic is randomly rotated
+					local max_xz = math.max(schematic.size.x, schematic.size.z)
 					local posses = {}
-					for z=pos.z, pos.z+schematic.size.z-1 do
+					for z=pos.z, pos.z+max_xz-1 do
 					for y=pos.y, pos.y+schematic.size.y-1 do
-					for x=pos.x, pos.x+schematic.size.x-1 do
+					for x=pos.x, pos.x+max_xz-1 do
 						table.insert(posses, {x=x,y=y,z=z})
 					end
 					end
