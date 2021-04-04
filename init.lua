@@ -635,7 +635,18 @@ schemedit.add_form("slice", {
 				index = self.selected
 			end
 
-			slice_list[index] = {ypos = ypos, prob = prob}
+			local dupe = false
+			if fields.done_add then
+				for k,v in pairs(slice_list) do
+					if v.ypos == ypos then
+						v.prob = prob
+						dupe = true
+					end
+				end
+			end
+			if not dupe then
+				slice_list[index] = {ypos = ypos, prob = prob}
+			end
 
 			meta:set_string("slices", minetest.serialize(slice_list))
 
