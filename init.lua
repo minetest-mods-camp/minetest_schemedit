@@ -456,7 +456,7 @@ schemedit.add_form("main", {
 				meta.x_size = schematic.size.x
 				meta.y_size = schematic.size.y
 				meta.z_size = schematic.size.z
-				meta.slices = minetest.serialize(schematic.yslice_prob)
+				meta.slices = minetest.serialize(renumber(schematic.yslice_prob))
 				local special_x_size = meta.x_size
 				local special_y_size = meta.y_size
 				local special_z_size = meta.z_size
@@ -661,7 +661,7 @@ schemedit.add_form("slice", {
 			meta:set_string("slices", minetest.serialize(renumber(slice_list)))
 
 			-- Update formspec
-			self.selected = 1
+			self.selected = math.min(1, self.selected-1)
 			self.panel_edit = nil
 			schemedit.show_formspec(pos, player, "slice")
 		end
