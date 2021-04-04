@@ -71,7 +71,7 @@ The node HUD is not updated automatically and may be outdated. The node HUD only
 Schematic Void=Schematic-Lücke
 This is an utility block used in the creation of schematic files. It should be used together with a schematic creator. When saving a schematic, all nodes with a schematic void will be left unchanged when the schematic is placed again. Technically, this is equivalent to a block with the node probability set to 0.=Dies ist ein Hilfsblock, der bei der Erstellung von Schematic-Dateien benutzt wird. Er sollte zusammen mit einem Schematic-Macher benutzt werden. Wenn ein Schematic gespeichert wird, werden alle Nodes mit einer Schematic-Lücke unverändert gelassen, wenn das Schematic erneut platziert wird. Technisch gesehen ist dieses Verhalten identisch mit einem Block, der eine Node-Wahrscheinlichkeit von 0 hat.
 Just place the schematic void like any other block and use the schematic creator to save a portion of the world.=Platzieren Sie einfach die Schematic-Lücke wie jeden anderen Block und benutzen Sie den Schematic-Macher, um einen Teil der Welt zu speichern.
-Place schematic at the position specified or the current player position (loaded from @1)=Schematic an der angegebenen Position oder der aktuellen Spielerposition speichern (geladen von @1)
+Place schematic at the position specified or the current player position (loaded from @1)=Schematic an der angegebenen Position oder der aktuellen Spielerposition platzieren (geladen von @1)
 <schematic name>[.mts] [<x> <y> <z>]=<Schematic-Name>[.mts] [<x> <y> <z>]
 No schematic file specified.=Keinen Schematic-Namen angegeben.
 Schematic file could not be loaded!=Schematic-Datei konnte nicht geladen werden!
