@@ -5,6 +5,9 @@ local schemedit = {}
 
 local DIR_DELIM = "/"
 
+-- Set to true to enable `make_schemedit_readme` command
+local MAKE_README = false
+
 local export_path_full = table.concat({minetest.get_worldpath(), "schems"}, DIR_DELIM)
 
 -- truncated export path so the server directory structure is not exposed publicly
@@ -1368,4 +1371,8 @@ minetest.register_chatcommand("mts2lua", {
 		end
 	end,
 })
+end
+
+if MAKE_README then
+	dofile(minetest.get_modpath("schemedit")..DIR_DELIM.."make_readme.lua")
 end

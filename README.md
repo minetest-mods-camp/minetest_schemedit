@@ -27,10 +27,13 @@ It also adds these server commands:
 There's also a setting `schemedit_export_lua` to enable automatic export to .lua files.
 
 ## Usage help
-Usage help can be found when you use the optional Help modpack (mods `doc` and `doc_items`).
-The “server” privilege is required for most features.
+This mod assumes you already have a basic understanding about how schematics in Minetest work.
+If not, refer to the Minetest Lua API documentation to understand more about schematics.
 
-You should also refer to the Minetest Lua API documentation to understand more about schematics.
+To learn how to use all the items in this mod, read `USAGE.md`.
+
+You can also find the same help texts in-game if you if you use the optional Help modpack
+(mods `doc` and `doc_items`).
 
 ## License of everything
 MIT License
