@@ -1129,7 +1129,7 @@ S("NODE HUD:").."\n"..
 S("To help you remember the node values, the nodes with special values are labelled in the HUD. The first line shows probability and force placement (with “[F]”). The second line is the current distance to the node. Nodes with default settings and schematic voids are not labelled.").."\n"..
 S("To disable the node HUD, unselect the tool or hit “place” while not pointing anything.").."\n\n"..
 S("UPDATING THE NODE HUD:").."\n"..
-S("The node HUD is not updated automatically and may be outdated. The node HUD only updates the HUD for nodes close to you whenever you place the tool or press the punch and sneak keys simutanously. If you sneak-punch a schematic creator, then the node HUD is updated for all nodes within the schematic creator's region, even if this region is very big."),
+S("The node HUD is not updated automatically and may be outdated. The node HUD only updates the HUD for nodes close to you whenever you place the tool or press the punch and sneak keys simultaneously. If you sneak-punch a schematic creator, then the node HUD is updated for all nodes within the schematic creator's region, even if this region is very big."),
 	wield_image = "schemedit_probtool.png",
 	inventory_image = "schemedit_probtool.png",
 	liquids_pointable = true,
