@@ -71,8 +71,8 @@ The node HUD is not updated automatically and may be outdated. The node HUD only
 Schematic Void=
 This is an utility block used in the creation of schematic files. It should be used together with a schematic creator. When saving a schematic, all nodes with a schematic void will be left unchanged when the schematic is placed again. Technically, this is equivalent to a block with the node probability set to 0.=
 Just place the schematic void like any other block and use the schematic creator to save a portion of the world.=
-Place schematic at the position specified or the current player position (loaded from @1)=
-<schematic name>[.mts] [<x> <y> <z>]=
+Place schematic at the position specified or the current player position (loaded from @1). “-c” will clear the area first=
+<schematic name>[.mts] [-c] [<x> <y> <z>]=
 No schematic file specified.=
 Schematic file could not be loaded!=
 Convert .mts schematic file to .lua file (loaded from @1)=
