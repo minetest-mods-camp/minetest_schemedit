@@ -1302,9 +1302,9 @@ minetest.register_chatcommand("placeschem", {
 	privs = {server = true},
 	params = S("<schematic name>[.mts] [-c] [<x> <y> <z>]"),
 	func = function(name, param)
-		local schem, clear, p = string.match(param, "^([^ ]+) +(%-c) +(.*)$")
+		local schem, clear, p = string.match(param, "^([^ ]+) +(%-c) *(.*)$")
 		if not schem then
-			schem, p = string.match(param, "^([^ ]+) +(.*)$")
+			schem, p = string.match(param, "^([^ ]+) *(.*)$")
 		end
 		clear = clear == "-c"
 
