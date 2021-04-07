@@ -1357,6 +1357,31 @@ minetest.register_chatcommand("placeschem", {
 	end,
 })
 
+minetest.register_chatcommand("listschems", {
+	description = S("List schematic files in world path"),
+	privs = {server = true},
+	params = "",
+	func = function(name, param)
+		local files = minetest.get_dir_list(minetest.get_worldpath()..DIR_DELIM.."schems", false)
+		if not files then
+			return false
+		end
+		local out_files = {}
+		-- Only show files with “.mts” suffix
+		for f=#files, 1, -1 do
+			if string.sub(string.lower(files[f]), -4, -1) == ".mts" then
+				table.insert(out_files, files[f])
+			end
+		end
+		table.sort(out_files)
+		local str = table.concat(out_files, ", ")
+		if str == "" then
+			return true, S("No schematic files.")
+		end
+		return true, str
+	end,
+})
+
 if can_import then
 -- [chatcommand] Convert MTS schematic file to .lua file
 minetest.register_chatcommand("mts2lua", {
