@@ -563,6 +563,11 @@ schemedit.add_form("slice", {
 			table[0,0;6.8,6;slices;]]..slices..[[;]]..selected..[[]
 		]]
 
+		-- Close edit panel if no slices
+		if self.panel_edit and slices == "" then
+			self.panel_edit = nil
+		end
+
 		if self.panel_add or self.panel_edit then
 			local ypos_default, prob_default = "", ""
 			local done_button = "button[5,7.18;2,1;done_add;"..F(S("Add")).."]"
