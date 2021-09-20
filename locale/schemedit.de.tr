@@ -75,6 +75,8 @@ Place schematic at the position specified or the current player position (loaded
 <schematic name>[.mts] [-c] [<x> <y> <z>]=<Schematic-Name>[.mts] [-c] [<x> <y> <z>]
 No schematic file specified.=Keinen Schematic-Namen angegeben.
 Schematic file could not be loaded!=Schematic-Datei konnte nicht geladen werden!
+List schematic files in world path=Schematic-Dateien im Weltpfad auflisten
+No schematic files.=Keine Schematic-Dateien.
 Convert .mts schematic file to .lua file (loaded from @1)=„.mts“-Schematicdatei zu „.lua“-Datei konvertieren (geladen von @1)
 <schematic name>[.mts] [comments]=<Schematic-Name>[.mts] [comments]
 Failed!=Fehlgeschlagen!
