@@ -1,4 +1,9 @@
-local S = minetest.get_translator("schemedit")
+local S
+if minetest.get_translator then
+	S = minetest.get_translator("schemedit")
+else
+	S = function(s) return s end
+end
 local F = minetest.formspec_escape
 
 local schemedit = {}
