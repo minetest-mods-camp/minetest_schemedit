@@ -420,7 +420,7 @@ schemedit.add_form("main", {
 			local slice_list = {}
 			for _, i in pairs(slist) do
 				slice_list[#slice_list + 1] = {
-					ypos = pos.y + i.ypos,
+					ypos = i.ypos,
 					prob = schemedit.lua_prob_to_schematic_prob(i.prob),
 				}
 			end
