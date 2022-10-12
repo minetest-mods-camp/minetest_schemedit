@@ -743,6 +743,11 @@ schemedit.add_form("probtool", {
 		if force_place == nil or force_place == "" then
 			force_place = "false"
 		end
+		if force_place == "true" then
+			self.force_place = true
+		else
+			self.force_place = false
+		end
 		local form = "size[5,4]"..
 			"label[0,0;"..F(S("Schematic Node Probability Tool")).."]"..
 			"field[0.75,1;4,1;prob;"..F(S("Probability (0-255)"))..";"..prob.."]"..
