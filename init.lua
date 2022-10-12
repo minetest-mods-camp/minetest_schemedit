@@ -227,7 +227,7 @@ local PROBTOOL_COUNT_ALIGN = 5 -- top left
 -- The itemstack is updated in-place.
 local function set_item_metadata(itemstack, prob, force_place)
 	local smeta = itemstack:get_meta()
-	local prob_desc = "\n"..S("Probability: @1", prob or
+	local prob_desc = "\n"..S("Probability: @1/255", prob or
 			smeta:get_string("schemedit_prob") or S("Not Set"))
 	-- Update probability
 	if prob and prob >= 0 and prob < 255 then
@@ -251,7 +251,7 @@ local function set_item_metadata(itemstack, prob, force_place)
 			smeta:set_string("count_alignment", nil)
 		end
 	else
-		prob_desc = "\n"..S("Probability: @1", smeta:get_string("schemedit_prob") or
+		prob_desc = "\n"..S("Probability: @1/255", smeta:get_string("schemedit_prob") or
 				S("Not Set"))
 	end
 

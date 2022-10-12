@@ -1,7 +1,7 @@
 # textdomain: schemedit
 <world path>=
 Insufficient privileges! You need the “@1” privilege to use this.=
-Probability: @1=
+Probability: @1/255=
 Not Set=
 Force placement=
 Import schematic=
