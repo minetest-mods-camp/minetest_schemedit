@@ -9,6 +9,8 @@ local F = minetest.formspec_escape
 local schemedit = {}
 
 local DIR_DELIM = "/"
+-- Text symbol for force placement
+local FORCE_SYMBOL = "[F]"
 
 -- Set to true to enable `make_schemedit_readme` command
 local MAKE_README = false
@@ -217,6 +219,9 @@ schemedit.scan_metadata = function(pos1, pos2)
 	return prob_list
 end
 
+-- alignment for probtool item count
+local PROBTOOL_COUNT_ALIGN = 5 -- top left
+
 -- Sets probability and force_place metadata of an item.
 -- Also updates item description.
 -- The itemstack is updated in-place.
@@ -227,10 +232,24 @@ local function set_item_metadata(itemstack, prob, force_place)
 	-- Update probability
 	if prob and prob >= 0 and prob < 255 then
 		smeta:set_string("schemedit_prob", tostring(prob))
+		local print_count = tostring(prob)
+		if force_place then
+			print_count = print_count .. FORCE_SYMBOL
+		end
+		-- Display a number in the item icon
+		smeta:set_string("count_meta", print_count)
+		smeta:set_int("count_alignment", PROBTOOL_COUNT_ALIGN)
 	elseif prob and prob == 255 then
 		-- Clear prob metadata for default probability
 		prob_desc = ""
 		smeta:set_string("schemedit_prob", nil)
+		if force_place == true then
+			smeta:set_string("count_meta", FORCE_SYMBOL)
+			smeta:set_string("count_alignment", PROBTOOL_COUNT_ALIGN)
+		else
+			smeta:set_string("count_meta", nil)
+			smeta:set_string("count_alignment", nil)
+		end
 	else
 		prob_desc = "\n"..S("Probability: @1", smeta:get_string("schemedit_prob") or
 				S("Not Set"))
@@ -932,15 +951,15 @@ end
 ---
 
 -- Show probability and force_place status of a particular position for player in HUD.
--- Probability is shown as a number followed by “[F]” if the node is force-placed.
+-- Probability is shown as a number followed by the FORCE_SYMBOL if the node is force-placed.
 function schemedit.display_node_prob(player, pos, prob, force_place)
 	local wpstring
 	if prob and force_place == true then
-		wpstring = string.format("%s [F]", prob)
+		wpstring = string.format("%s "..FORCE_SYMBOL, prob)
 	elseif prob and type(tonumber(prob)) == "number" then
 		wpstring = prob
 	elseif force_place == true then
-		wpstring = "[F]"
+		wpstring = FORCE_SYMBOL
 	end
 	if wpstring then
 		return player:hud_add({
