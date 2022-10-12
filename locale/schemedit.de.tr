@@ -1,7 +1,7 @@
 # textdomain: schemedit
 <world path>=<Weltpfad>
 Insufficient privileges! You need the “@1” privilege to use this.=Unzureichende Privilegien! Sie benötigen das „@1“-Privileg, um dies benutzen zu können.
-Probability: @1/255=Wahrscheinlichkeit: @1/255
+Probability: @1=Wahrscheinlichkeit: @1
 Not Set=Nicht gesetzt
 Force placement=Platzierung erzwingen
 Import schematic=Schematic importieren
