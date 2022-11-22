@@ -42,6 +42,17 @@ local function renumber(t)
 	return res
 end
 
+local get_border_texture = function()
+	local val = minetest.settings:get("schemedit_border_style")
+	if val == "checkers" then
+		-- checkers style
+		return "schemedit_border_checkers.png"
+	else
+		-- edges style
+		return "schemedit_border.png"
+	end
+end
+
 local NEEDED_PRIV = "server"
 local function check_priv(player_name, quit)
 	local privs = minetest.get_player_privs(player_name)
@@ -1343,7 +1354,7 @@ minetest.register_node("schemedit:void", {
 -- [entity] Visible schematic border
 minetest.register_entity("schemedit:display", {
 	visual = "upright_sprite",
-	textures = {"schemedit_border.png"},
+	textures = {get_border_texture()},
 	visual_size = {x=10, y=10},
 	pointable = false,
 	physical = false,
