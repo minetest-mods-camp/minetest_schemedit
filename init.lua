@@ -68,6 +68,54 @@ if can_import then
 	end
 end
 
+-- Export nodes between pos1 and pos2 into filepath.
+-- The area MUST be emerged and loaded before calling this function.
+-- * path: path name (without file name)
+-- * schem_name: raw schematic name (without ".mts" suffix)
+-- * pos1, pos2: Area bounds (vectors)
+-- * player_name: Player name for chat messages
+-- * slice_list: y_slice list for minetest.create_schematic
+--
+-- returns true on success
+local export_schematic_to_mts = function(pos1, pos2, path, schem_name, player_name, slice_list)
+	local plist = schemedit.scan_metadata(pos1, pos2)
+	local probability_list = {}
+	for hash, i in pairs(plist) do
+		local prob = schemedit.lua_prob_to_schematic_prob(i.prob)
+		if i.force_place == true then
+			prob = prob + 128
+		end
+
+		table.insert(probability_list, {
+			pos = minetest.get_position_from_hash(hash),
+			prob = prob,
+		})
+	end
+
+	local filepath = path..schem_name..".mts"
+	local res = minetest.create_schematic(pos1, pos2, probability_list, filepath, slice_list)
+
+	if res then
+		minetest.chat_send_player(player_name, minetest.colorize("#00ff00",
+				S("Exported schematic to @1", filepath)))
+		-- Additional export to Lua file if MTS export was successful
+		local schematic = minetest.read_schematic(filepath, {})
+		if schematic and minetest.settings:get_bool("schemedit_export_lua") then
+			local filepath_lua = path..schem_name..".lua"
+			res = export_schematic_to_lua(schematic, filepath_lua)
+			if res then
+				minetest.chat_send_player(player_name, minetest.colorize("#00ff00",
+						S("Exported schematic to @1", filepath_lua)))
+			end
+		end
+		return true
+	else
+		minetest.chat_send_player(player_name, minetest.colorize("red",
+				S("Failed to export schematic to @1", filepath)))
+		return false
+	end
+end
+
 ---
 --- Formspec API
 ---
@@ -421,20 +469,6 @@ schemedit.add_form("main", {
 			local path = export_path_full .. DIR_DELIM
 			minetest.mkdir(path)
 
-			local plist = schemedit.scan_metadata(pos1, pos2)
-			local probability_list = {}
-			for hash, i in pairs(plist) do
-				local prob = schemedit.lua_prob_to_schematic_prob(i.prob)
-				if i.force_place == true then
-					prob = prob + 128
-				end
-
-				table.insert(probability_list, {
-					pos = minetest.get_position_from_hash(hash),
-					prob = prob,
-				})
-			end
-
 			local slist = minetest.deserialize(meta.slices)
 			local slice_list = {}
 			for _, i in pairs(slist) do
@@ -444,26 +478,7 @@ schemedit.add_form("main", {
 				}
 			end
 
-			local filepath = path..meta.schem_name..".mts"
-			local res = minetest.create_schematic(pos1, pos2, probability_list, filepath, slice_list)
-
-			if res then
-				minetest.chat_send_player(name, minetest.colorize("#00ff00",
-						S("Exported schematic to @1", filepath)))
-				-- Additional export to Lua file if MTS export was successful
-				local schematic = minetest.read_schematic(filepath, {})
-				if schematic and minetest.settings:get_bool("schemedit_export_lua") then
-					local filepath_lua = path..meta.schem_name..".lua"
-					res = export_schematic_to_lua(schematic, filepath_lua)
-					if res then
-						minetest.chat_send_player(name, minetest.colorize("#00ff00",
-								S("Exported schematic to @1", filepath_lua)))
-					end
-				end
-			else
-				minetest.chat_send_player(name, minetest.colorize("red",
-						S("Failed to export schematic to @1", filepath)))
-			end
+			export_schematic_to_mts(pos1, pos2, path, meta.schem_name, name, slice_list)
 		end
 
 		-- Import schematic
