@@ -20,8 +20,10 @@ local export_path_full = table.concat({minetest.get_worldpath(), "schems"}, DIR_
 -- truncated export path so the server directory structure is not exposed publicly
 local export_path_trunc = table.concat({S("<world path>"), "schems"}, DIR_DELIM)
 
-local text_color = "#D79E9E"
-local text_color_number = 0xD79E9E
+local TEXT_COLOR_GUI = "#D79E9E"
+local TEXT_COLOR_GUI_NUMBER = 0xD79E9E
+local TEXT_COLOR_ERROR = "#FF0000"
+local TEXT_COLOR_SUCCESS = "#00FF00"
 
 local can_import = minetest.read_schematic ~= nil
 
@@ -43,7 +45,7 @@ local function check_priv(player_name, quit)
 		return true
 	else
 		if not quit then
-			minetest.chat_send_player(player_name, minetest.colorize("red",
+			minetest.chat_send_player(player_name, minetest.colorize(TEXT_COLOR_ERROR,
 					S("Insufficient privileges! You need the “@1” privilege to use this.", NEEDED_PRIV)))
 		end
 		return false
@@ -96,7 +98,7 @@ local export_schematic_to_mts = function(pos1, pos2, path, schem_name, player_na
 	local res = minetest.create_schematic(pos1, pos2, probability_list, filepath, slice_list)
 
 	if res then
-		minetest.chat_send_player(player_name, minetest.colorize("#00ff00",
+		minetest.chat_send_player(player_name, minetest.colorize(TEXT_COLOR_SUCCESS,
 				S("Exported schematic to @1", filepath)))
 		-- Additional export to Lua file if MTS export was successful
 		local schematic = minetest.read_schematic(filepath, {})
@@ -104,13 +106,13 @@ local export_schematic_to_mts = function(pos1, pos2, path, schem_name, player_na
 			local filepath_lua = path..schem_name..".lua"
 			res = export_schematic_to_lua(schematic, filepath_lua)
 			if res then
-				minetest.chat_send_player(player_name, minetest.colorize("#00ff00",
+				minetest.chat_send_player(player_name, minetest.colorize(TEXT_COLOR_SUCCESS,
 						S("Exported schematic to @1", filepath_lua)))
 			end
 		end
 		return true
 	else
-		minetest.chat_send_player(player_name, minetest.colorize("red",
+		minetest.chat_send_player(player_name, minetest.colorize(TEXT_COLOR_ERROR,
 				S("Failed to export schematic to @1", filepath)))
 		return false
 	end
@@ -329,7 +331,7 @@ local function set_item_metadata(itemstack, prob, force_place)
 		force_desc = "\n"..S("Force placement")
 	end
 
-	desc = desc..minetest.colorize(text_color, prob_desc..force_desc)
+	desc = desc..minetest.colorize(TEXT_COLOR_GUI, prob_desc..force_desc)
 
 	smeta:set_string("description", desc)
 
@@ -485,10 +487,10 @@ schemedit.add_form("main", {
 			-- callback for minetest.emerge_area
 			local after_emerged = function(blockpos, action, calls_remaining, param)
 				if action == minetest.EMERGE_CANCELLED then
-					minetest.chat_send_player(param.player_name, minetest.colorize("red",
+					minetest.chat_send_player(param.player_name, minetest.colorize(TEXT_COLOR_ERROR,
 						S("Could not emerge area from @1 to @2: Emerging was cancelled. Nothing was exported.")))
 				elseif action == minetest.EMERGE_ERRORED then
-					minetest.chat_send_player(param.player_name, minetest.colorize("red",
+					minetest.chat_send_player(param.player_name, minetest.colorize(TEXT_COLOR_ERROR,
 						S("Could not emerge area from @1 to @2: Error while emerging. Nothing was exported.")))
 				elseif action == minetest.EMERGE_GENERATED or action == minetest.EMERGE_FROM_MEMORY or action == minetest.EMERGE_FROM_DISK then
 					if calls_remaining > 0 then
@@ -500,7 +502,7 @@ schemedit.add_form("main", {
 
 					-- Note: Player chat message is handled in the export function
 				else
-					minetest.chat_send_player(param.player_name, minetest.colorize("red",
+					minetest.chat_send_player(param.player_name, minetest.colorize(TEXT_COLOR_ERROR,
 						S("Could not emerge area from @1 to @2: Unknown action in emerge callback. Nothing was exported.")))
 
 				end
@@ -590,10 +592,10 @@ schemedit.add_form("main", {
 				end
 			end
 			if success then
-				minetest.chat_send_player(name, minetest.colorize("#00ff00",
+				minetest.chat_send_player(name, minetest.colorize(TEXT_COLOR_SUCCESS,
 						S("Imported schematic from @1", filepath)))
 			else
-				minetest.chat_send_player(name, minetest.colorize("red",
+				minetest.chat_send_player(name, minetest.colorize(TEXT_COLOR_ERROR,
 						S("Failed to import schematic from @1", filepath)))
 			end
 		end
@@ -1022,7 +1024,7 @@ function schemedit.display_node_prob(player, pos, prob, force_place)
 			name = wpstring,
 			precision = 0,
 			text = "m", -- For the distance artifact [legacy]
-			number = text_color_number,
+			number = TEXT_COLOR_GUI_NUMBER,
 			world_pos = pos,
 			z_index = -300,
 		})
