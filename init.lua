@@ -478,7 +478,42 @@ schemedit.add_form("main", {
 				}
 			end
 
-			export_schematic_to_mts(pos1, pos2, path, meta.schem_name, name, slice_list)
+			-- We emerge the entire area before exporting first.
+			-- This is required to so make sure we don't export
+			-- unloaded areas (=ignore nodes).
+
+			-- callback for minetest.emerge_area
+			local after_emerged = function(blockpos, action, calls_remaining, param)
+				if action == minetest.EMERGE_CANCELLED then
+					minetest.chat_send_player(param.player_name, minetest.colorize("red",
+						S("Could not emerge area from @1 to @2: Emerging was cancelled. Nothing was exported.")))
+				elseif action == minetest.EMERGE_ERRORED then
+					minetest.chat_send_player(param.player_name, minetest.colorize("red",
+						S("Could not emerge area from @1 to @2: Error while emerging. Nothing was exported.")))
+				elseif action == minetest.EMERGE_GENERATED or action == minetest.EMERGE_FROM_MEMORY or action == minetest.EMERGE_FROM_DISK then
+					if calls_remaining > 0 then
+						return
+					end
+
+					-- Start the export!
+					export_schematic_to_mts(param.pos1, param.pos2, param.path, param.schem_name, param.player_name, param.slice_list)
+
+					-- Note: Player chat message is handled in the export function
+				else
+					minetest.chat_send_player(param.player_name, minetest.colorize("red",
+						S("Could not emerge area from @1 to @2: Unknown action in emerge callback. Nothing was exported.")))
+
+				end
+			end
+			local emerge_param = {
+				pos1 = pos1,
+				pos2 = pos2,
+				path = path,
+				schem_name = meta.schem_name,
+				player_name = name,
+				slice_list = slice_list
+			}
+			minetest.emerge_area(pos1, pos2, after_emerged, emerge_param)
 		end
 
 		-- Import schematic
