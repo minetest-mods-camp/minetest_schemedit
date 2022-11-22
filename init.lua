@@ -8,10 +8,8 @@ local F = minetest.formspec_escape
 
 local schemedit = {}
 
+-- Directory separator
 local DIR_DELIM = "/"
--- Text symbol for force placement
-local FORCE_SYMBOL = "[F]"
-
 -- Set to true to enable `make_schemedit_readme` command
 local MAKE_README = false
 
@@ -20,10 +18,16 @@ local export_path_full = table.concat({minetest.get_worldpath(), "schems"}, DIR_
 -- truncated export path so the server directory structure is not exposed publicly
 local export_path_trunc = table.concat({S("<world path>"), "schems"}, DIR_DELIM)
 
+-- Text colors
 local TEXT_COLOR_GUI = "#D79E9E"
 local TEXT_COLOR_GUI_NUMBER = 0xD79E9E
 local TEXT_COLOR_ERROR = "#FF0000"
 local TEXT_COLOR_SUCCESS = "#00FF00"
+
+-- Text symbol for force placement
+local FORCE_SYMBOL = "[F]"
+
+
 
 local can_import = minetest.read_schematic ~= nil
 
@@ -1448,7 +1452,7 @@ minetest.register_chatcommand("listschems", {
 	privs = {server = true},
 	params = "",
 	func = function(name, param)
-		local files = minetest.get_dir_list(minetest.get_worldpath()..DIR_DELIM.."schems", false)
+		local files = minetest.get_dir_list(export_path_full, false)
 		if not files then
 			return false
 		end
