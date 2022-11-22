@@ -1,6 +1,8 @@
 # textdomain: schemedit
 <world path>=
 Insufficient privileges! You need the “@1” privilege to use this.=
+Exported schematic to @1=
+Failed to export schematic to @1=
 Probability: @1=
 Not Set=
 Force placement=
@@ -27,8 +29,9 @@ Y size:=
 Z size:=
 Save size=
 Help=
-Exported schematic to @1=
-Failed to export schematic to @1=
+Could not emerge area from @1 to @2: Emerging was cancelled. Nothing was exported.=
+Could not emerge area from @1 to @2: Error while emerging. Nothing was exported.=
+Could not emerge area from @1 to @2: Unknown action in emerge callback. Nothing was exported.=
 Imported schematic from @1=
 Failed to import schematic from @1=
 Y Slices=
