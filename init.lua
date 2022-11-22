@@ -100,7 +100,7 @@ local export_schematic_to_mts = function(pos1, pos2, path, schem_name, player_na
 				S("Exported schematic to @1", filepath)))
 		-- Additional export to Lua file if MTS export was successful
 		local schematic = minetest.read_schematic(filepath, {})
-		if schematic and minetest.settings:get_bool("schemedit_export_lua") then
+		if schematic and minetest.settings:get_bool("schemedit_export_lua") and export_schematic_to_lua then
 			local filepath_lua = path..schem_name..".lua"
 			res = export_schematic_to_lua(schematic, filepath_lua)
 			if res then
