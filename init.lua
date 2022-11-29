@@ -1418,7 +1418,12 @@ minetest.register_chatcommand("placeschem", {
 			local axes = { "x", "y", "z" }
 			for a=1, #axes do
 				local axis = axes[a]
-				local parsed = minetest.parse_relative_number(pp[a], ppos[axis])
+				local parsed
+				if minetest.parse_relative_number then
+					parsed = minetest.parse_relative_number(pp[a], ppos[axis])
+				else
+					parsed = tonumber(ppos[axis])
+				end
 				if not parsed then
 					return false
 				end
