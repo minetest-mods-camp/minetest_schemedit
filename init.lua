@@ -1409,14 +1409,30 @@ minetest.register_chatcommand("placeschem", {
 		end
 		clear = clear == "-c"
 
-		local pos = minetest.string_to_pos(p)
+		local ppos = minetest.get_player_by_name(name):get_pos()
+
+		local pos
+		if p and p ~= "" then
+			local pp = string.split(p, " ")
+			local nums = {}
+			local axes = { "x", "y", "z" }
+			for a=1, #axes do
+				local axis = axes[a]
+				local parsed = minetest.parse_relative_number(pp[a], ppos[axis])
+				if not parsed then
+					return false
+				end
+				table.insert(nums, parsed)
+			end
+			pos = vector.new(nums[1], nums[2], nums[3])
+		else
+			pos = ppos
+		end
+
+		pos = vector.round(pos)
 
 		if not schem then
 			return false, S("No schematic file specified.")
-		end
-
-		if not pos then
-			pos = minetest.get_player_by_name(name):get_pos()
 		end
 
 		local schem_full, schem_lua = add_suffix(schem)
@@ -1442,11 +1458,13 @@ minetest.register_chatcommand("placeschem", {
 					end
 					minetest.bulk_set_node(posses, {name="air"})
 				end
+				minetest.log("action", "[schemedit] Placing schematic '"..schem.."' at: "..minetest.pos_to_string(pos))
 				success = minetest.place_schematic(pos, schematic, "random", nil, false)
 			end
 		else
 			-- Legacy support for Minetest versions that do not have minetest.read_schematic.
 			-- Note: "-c" is ignored here.
+			minetest.log("action", "[schemedit] Placing schematic '"..schem.."' at: "..minetest.pos_to_string(pos))
 			success = minetest.place_schematic(schem_path, schematic, "random", nil, false)
 		end
 
